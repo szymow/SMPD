@@ -44,3 +44,20 @@ if odpowiedz_algorytmu is df.iloc[-1]["klasa"]:
         print("\n Algorytm ma racje")
 else:
      print("\n Algorytm się pomylił")
+     
+def printtext():
+    global e
+    string = e.get() 
+    print(string)   
+
+root2 = tk.Tk()
+
+root2.title("kNN - k najbliższych sąsiadów")
+
+e = tk.Entry(root2)
+e.pack()
+e.focus_set()
+
+b = tk.Button(root,text='okay',command=printtext)
+b.pack(side='bottom')
+root.mainloop()
