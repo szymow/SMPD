@@ -94,13 +94,6 @@ for key, value in sorted(slownik_kNN.items(), key=lambda item: item[1]):
 
 print(posortowany_slownik_kNN)
 
-for wartosc in lista_kNN[0:4]:
-    slownik_kNN['A'+i] = wartosc
-for wartosc in lista_kNN[4:8]:
-    slownik_kNN['B'] = wartosc
-    
-dir(slownik_kNN)
-
 print("x należy do klasy: " + df.iloc[index_probka_kNN]["klasa"])
 print("według metody NN x należy do klasy: " + df.iloc[min_index_NN]["klasa"])
 
