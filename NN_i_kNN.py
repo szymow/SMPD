@@ -2,14 +2,19 @@
 """
 Create a GUI to import a CSV file into Python
 """
-
+#Biblioteki GUI
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, Label
+from tkinter.ttk import Combobox
 import pandas as pd
-root=tk.Tk()
 
-canvas1=tk.Canvas(root, width=300, height=300, bg='lightsteelblue2', relief='raised')
-canvas1.pack()
+import math
+
+root=tk.Tk()
+root.title("SMPD lab Szymon Woyda 227458")
+root.geometry('640x480')
+lbl=Label(root, text="\t Metody klasyfikacji: NN i kNN \t", font=("Arial",16))
+lbl.grid(column=0,row=0)
 
 def getCSV():
     global df
@@ -18,16 +23,38 @@ def getCSV():
     df=pd.read_csv(import_file_path)
     print(df)
     
+def printtext():
+    global e
+    global wartosc_k
+    wartosc_k = combo.get()
+    wartosc_k = int(wartosc_k)
+    print(wartosc_k,'\n')
+    
 browseButton_CSV = tk.Button(text=" Import CSV File ", command=getCSV, bg='green', fg='white', font=('helvetica', 12, 'bold'))
-canvas1.create_window(150, 150, window=browseButton_CSV)
+browseButton_CSV.grid(column=1, row=0)
+
+lbl2=Label(root, text=" Wybierz wartość k dla metody kNN: \t", font=("Arial",12))
+lbl2.grid(column=0,row=1)
+
+combo = Combobox(root)
+combo['values']=(1,2,3,4,5,6,7,8)
+combo.current(2)
+combo.grid(column=1,row=1)
+
+browseButton_kNN = tk.Button(text=" Zatwierdź ", command=printtext, bg='green', fg='white', font=('helvetica', 12, 'bold'))
+browseButton_kNN.grid(column=2, row=1)
 
 root.mainloop()
 
-# Index -1 oznacza ostatni punkt w naszym przypadku X
-import math
+#Dane modyfikowane przez użytkownika
+liczba_probek_treningowych = 8
+liczba_probek_trening_A = 4
+liczba_probek_trening_B = 4
 
-liczba_probek_treningowych = 8 #liczą od zera jest 0, ale taki jest wymóg funkcji range
+#Index probki testowej
 index_probka_NN = 8
+index_probka_kNN = 9
+
 listaNN=[]
 
 for i in range(liczba_probek_treningowych):
@@ -45,43 +72,23 @@ if odpowiedz_algorytmu_NN is df.iloc[index_probka_NN]["klasa"]:
         print("\n Algorytm NN ma racje")
 else:
      print("\n Algorytm NN się pomylił")
-     
-def printtext():
-    global e
-    global wartosc_k
-    wartosc_k = e.get()
-    wartosc_k = int(wartosc_k)
-    print(wartosc_k,'\n')
-
-root2 = tk.Tk()
-
-root2.title("kNN - k najbliższych sąsiadów")
-canvas2=tk.Canvas(root2, width=300, height=300, bg='lightsteelblue2', relief='raised')
-canvas2.pack()
-
-e = tk.Entry(root2)
-e.pack()
-e.focus_set()
-
-browseButton_kNN = tk.Button(text=" Zatwierdź ", command=printtext, bg='green', fg='white', font=('helvetica', 12, 'bold'))
-canvas2.create_window(150, 150, window=browseButton_CSV)
-root.mainloop()
 
 #kNN k najbliższych sąsiadów
 
-index_probka_kNN = 9
 lista_kNN=[]
 
-for i in range(8):
+for i in range(liczba_probek_treningowych):
     lista_kNN.append(math.sqrt(math.pow((df.iloc[i]["c1"]-df.iloc[index_probka_kNN]["c1"]),2) + math.pow((df.iloc[i]["c2"]-df.iloc[index_probka_kNN]["c2"]),2)+math.pow((df.iloc[i]["c3"]-df.iloc[index_probka_kNN]["c3"]),2)))
 
 #Index punktu dla którego odległosc jest najniższą wartoscią
 slownik_kNN={}
 
-for i in range(0,4):
+#range(0,4)
+for i in range(0,liczba_probek_trening_A):
     slownik_kNN['A',i]=lista_kNN[i]
-  
-for i in range(4,8):
+
+#range(4,8)
+for i in range(liczba_probek_trening_A,liczba_probek_trening_A + liczba_probek_trening_B):
     slownik_kNN['B',i]=lista_kNN[i]
 
 #print(slownik_kNN)
@@ -105,8 +112,6 @@ else:
     print("Według metody kNN x należy do klasy: B")
     odpowiedz_algorytmu_kNN = 'B'
 
-#Index punktu dla którego odległosc jest najniższą wartoscią
-min_index_NN=(listaNN).index(min(listaNN))
 
 print("Szukany x dla metody kNN należy do klasy: " + df.iloc[index_probka_kNN]["klasa"])
 
@@ -115,3 +120,5 @@ if odpowiedz_algorytmu_kNN is df.iloc[index_probka_kNN]["klasa"]:
         print(" Algorytm kNN ma racje")
 else:
      print(" Algorytm kNN się pomylił")
+     
+#https://likegeeks.com/python-gui-examples-tkinter-tutorial/
