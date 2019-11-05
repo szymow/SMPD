@@ -36,20 +36,22 @@ for i in range(liczba_probek_treningowych):
 #Index punktu dla którego odległosc jest najniższą wartoscią
 min_index_NN=(listaNN).index(min(listaNN))
 
-print("x należy do klasy: " + df.iloc[index_probka_NN]["klasa"])
-print("według metody NN x należy do klasy: " + df.iloc[min_index_NN]["klasa"])
+print("Szukany x dla metody NN należy do klasy: " + df.iloc[index_probka_NN]["klasa"])
+print("Według metody NN x należy do klasy: " + df.iloc[min_index_NN]["klasa"])
 
 odpowiedz_algorytmu_NN = df.iloc[min_index_NN]["klasa"]
 
 if odpowiedz_algorytmu_NN is df.iloc[index_probka_NN]["klasa"]:
-        print("\n Algorytm ma racje")
+        print("\n Algorytm NN ma racje")
 else:
-     print("\n Algorytm się pomylił")
+     print("\n Algorytm NN się pomylił")
      
 def printtext():
     global e
-    string = e.get() 
-    print(string)   
+    global wartosc_k
+    wartosc_k = e.get()
+    wartosc_k = int(wartosc_k)
+    print(wartosc_k,'\n')
 
 root2 = tk.Tk()
 
@@ -85,16 +87,32 @@ slownik_kNN['B1']=lista_kNN[5]
 slownik_kNN['B2']=lista_kNN[6]
 slownik_kNN['B3']=lista_kNN[7]
 
-print(slownik_kNN)
-
+#print(slownik_kNN)
 posortowany_slownik_kNN={}
 
 for key, value in sorted(slownik_kNN.items(), key=lambda item: item[1]):
     posortowany_slownik_kNN[key]=value
 
-print(posortowany_slownik_kNN)
+#print(posortowany_slownik_kNN)
+klucze_kNN = [k for k, v in posortowany_slownik_kNN.items()]
 
-print("x należy do klasy: " + df.iloc[index_probka_kNN]["klasa"])
-print("według metody NN x należy do klasy: " + df.iloc[min_index_NN]["klasa"])
+#print(klucze_kNN[:wartosc_k])
+klucze_kNN_join=''.join(klucze_kNN[:wartosc_k])
 
-odpowiedz_algorytmu_NN = df.iloc[min_index_NN]["klasa"]
+if klucze_kNN_join.count('A') > klucze_kNN_join.count('B'):
+    print("Według metody kNN x należy do klasy: A")
+    odpowiedz_algorytmu_kNN = 'A'
+else:
+    print("Według metody kNN x należy do klasy: B")
+    odpowiedz_algorytmu_kNN = 'B'
+
+#Index punktu dla którego odległosc jest najniższą wartoscią
+min_index_NN=(listaNN).index(min(listaNN))
+
+print("Szukany x dla metody kNN należy do klasy: " + df.iloc[index_probka_kNN]["klasa"])
+
+print("Dla k = ", wartosc_k)
+if odpowiedz_algorytmu_kNN is df.iloc[index_probka_kNN]["klasa"]:
+        print(" Algorytm kNN ma racje")
+else:
+     print(" Algorytm kNN się pomylił")
