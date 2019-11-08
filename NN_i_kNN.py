@@ -9,17 +9,17 @@ from tkinter.ttk import Combobox
 import pandas as pd
 import math
 
-root=tk.Tk()
-root.title("SMPD lab Szymon Woyda 227458")
-root.geometry('640x480')
-lbl=Label(root, text=" Metody klasyfikacji: NN i kNN", font=("Arial",16))
-lbl.grid(column=0,row=0)
+okno=tk.Tk()
+okno.title("SMPD lab Szymon Woyda 227458")
+okno.geometry('640x480')
+etykieta=Label(okno, text=" Metody klasyfikacji: NN i kNN", font=("Arial",16))
+etykieta.grid(column = 0, row = 0)
 
 def getCSV():
-    global df
-    import_file_path = filedialog.askopenfilename()
-    df=pd.read_csv(import_file_path)
-    print(df)
+    global dane
+    sciezkaDoPliku = filedialog.askopenfilename()
+    dane=pd.read_csv(sciezkaDoPliku)
+    print(dane)
 
 #Dane modyfikowane przez użytkownika    
 def input_k():
@@ -40,83 +40,92 @@ def input_test():
     liczba_probek_testowych = int(liczba_probek_testowych)
     print("liczba_probek_testowych = ", liczba_probek_testowych)
     
-browseButton_CSV = tk.Button(text=" Import CSV File ", 
+przyciskImportujCSV = tk.Button(text=" Importuj CSV ", 
                              command=getCSV, bg='green', fg='white', font=('helvetica', 12, 'bold'))
-browseButton_CSV.grid(column=1, row=0)
+przyciskImportujCSV.grid(column=1, row=0)
 
-lbl3=Label(root, text=" Liczba próbek treningowych: ", font=("Arial",12))
-lbl3.grid(column=0,row=1)
+etykieta3=Label(okno, text=" Liczba próbek treningowych: ", font=("Arial",12))
+etykieta3.grid(column=0,row=1)
 
-combo2 = Combobox(root)
+combo2 = Combobox(okno)
 combo2['values']=(1,2,3,4,5,6,7,8,9,10,11,12,13)
 combo2.current(7)
 combo2.grid(column=1,row=1)
 
-lbl3=Label(root, text=" Liczba próbek testowych: ", font=("Arial",12))
-lbl3.grid(column=0,row=2)
+etykieta3=Label(okno, text=" Liczba próbek testowych: ", font=("Arial",12))
+etykieta3.grid(column=0,row=2)
 
-combo3 = Combobox(root)
+combo3 = Combobox(okno)
 combo3['values']=(1,2,3,4,5)
 combo3.current(1)
 combo3.grid(column=1,row=2)
 
-browseButton_input_trening = tk.Button(text=" Zatwierdź ", command=input_trening, bg='green', fg='white', font=('helvetica', 12, 'bold'))
-browseButton_input_trening.grid(column=2, row=1)
-browseButton_input_test = tk.Button(text=" Zatwierdź ", command=input_test, bg='green', fg='white', font=('helvetica', 12, 'bold'))
-browseButton_input_test.grid(column=2, row=2)
+przyciskWybierzTrening = tk.Button(text=" Zatwierdź ", command=input_trening, bg='green', fg='white', font=('helvetica', 12, 'bold'))
+przyciskWybierzTrening.grid(column=2, row=1)
+przyciskWybierzTest = tk.Button(text=" Zatwierdź ", command=input_test, bg='green', fg='white', font=('helvetica', 12, 'bold'))
+przyciskWybierzTest.grid(column=2, row=2)
 
-lbl2=Label(root, text=" Wartość k dla metody kNN: \t", font=("Arial",12))
-lbl2.grid(column=0,row=3)
+etykieta2=Label(okno, text=" Wartość k dla metody kNN: \t", font=("Arial",12))
+etykieta2.grid(column=0,row=3)
 
-combo = Combobox(root)
+combo = Combobox(okno)
 combo['values']=(1,2,3,4,5,6,7,8)
 combo.current(2)
 combo.grid(column=1,row=3)
 
-browseButton_kNN = tk.Button(text=" Zatwierdź ", command=input_k, bg='green', fg='white', font=('helvetica', 12, 'bold'))
-browseButton_kNN.grid(column=2, row=3)
+przyciskWybierzK = tk.Button(text=" Zatwierdź ", command=input_k, bg='green', fg='white', font=('helvetica', 12, 'bold'))
+przyciskWybierzK.grid(column=2, row=3)
 
-root.mainloop()
+okno.mainloop()
 
+LPTest = liczba_probek_testowych
+LPTrening = liczba_probek_treningowych
+
+#Metoda NN najbliższy sąsiad
 listaNN=[[],[],[],[],[]]
 
-for j in range(liczba_probek_testowych):
-    for i in range(liczba_probek_treningowych):
-        listaNN[j].append(math.sqrt(math.pow((df.iloc[i]["c1"]-df.iloc[j+liczba_probek_treningowych]["c1"]),2) + math.pow((df.iloc[i]["c2"]-df.iloc[j+liczba_probek_treningowych]["c2"]),2)+math.pow((df.iloc[i]["c3"]-df.iloc[j+liczba_probek_treningowych]["c3"]),2)))
+for kolejny in range(LPTest):
+    for i in range(LPTrening):
+        aktualny = LPTrening + kolejny
+        listaNN[kolejny].append(math.sqrt(math.pow((dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"]),2)
+        + math.pow((dane.iloc[i]["c2"]-dane.iloc[aktualny]["c2"]),2)
+        + math.pow((dane.iloc[i]["c3"]-dane.iloc[aktualny]["c3"]),2)))
 
 min_index_NN=[]
 
-for i in range(liczba_probek_testowych):
+for i in range(LPTest):
     min_index_NN.append((listaNN[i]).index(min(listaNN[i])))
-    print(df.iloc[liczba_probek_treningowych + i])
-    print("Szukany x dla metody NN należy do klasy: " + df.iloc[liczba_probek_treningowych + i]["klasa"])
-    print("Według metody NN x należy do klasy: " + df.iloc[min_index_NN[i]]["klasa"])
+    aktualny = LPTrening + i
+    print(dane.iloc[aktualny])
+    print("Szukany x dla metody NN należy do klasy: " + dane.iloc[aktualny]["klasa"])
+    print("Według metody NN x należy do klasy: " + dane.iloc[min_index_NN[i]]["klasa"])
 
-    if df.iloc[min_index_NN[i]]["klasa"] is df.iloc[liczba_probek_treningowych + i]["klasa"]:
+    if dane.iloc[min_index_NN[i]]["klasa"] is dane.iloc[aktualny]["klasa"]:
         print("Algorytm NN ma racje \n")
     else:
         print("Algorytm NN się pomylił \n")
 
 
-#kNN k najbliższych sąsiadów
+#Metoda kNN k najbliższych sąsiadów
 
 lista_kNN=[[],[],[],[],[]]
 
-for j in range(liczba_probek_testowych):
-    for i in range(liczba_probek_treningowych):
-        lista_kNN[j].append(math.sqrt(math.pow((df.iloc[i]["c1"]-df.iloc[j+liczba_probek_treningowych]["c1"]),2) 
-        + math.pow((df.iloc[i]["c2"]-df.iloc[j+liczba_probek_treningowych]["c2"]),2)
-        + math.pow((df.iloc[i]["c3"]-df.iloc[j+liczba_probek_treningowych]["c3"]),2)))
+for kolejny in range(LPTest):
+    for i in range(LPTrening):
+        aktualny = LPTrening + kolejny
+        lista_kNN[kolejny].append(math.sqrt(math.pow((dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"]),2) 
+        + math.pow((dane.iloc[i]["c2"]-dane.iloc[aktualny]["c2"]),2)
+        + math.pow((dane.iloc[i]["c3"]-dane.iloc[aktualny]["c3"]),2)))
 
 odpowiedz_algorytmu_kNN = []
 
-for odp in range(liczba_probek_testowych):
+for odp in range(LPTest):
 
     slownik_kNN={}
 
-    for j in range(liczba_probek_testowych):
-        for i in range(liczba_probek_treningowych):
-            klasa_probki = df.iloc[i]["klasa"]
+    for j in range(LPTest):
+        for i in range(LPTrening):
+            klasa_probki = dane.iloc[i]["klasa"]
             slownik_kNN[klasa_probki,i]=lista_kNN[j][i]
             
     posortowany_slownik_kNN={}
@@ -135,11 +144,12 @@ for odp in range(liczba_probek_testowych):
     
     odpowiedz_algorytmu_kNN.append(odpowiedz)
 
-for i in range(liczba_probek_testowych):
-    print("Szukany x dla metody kNN należy do klasy: " + df.iloc[liczba_probek_treningowych + i]["klasa"])
+for i in range(LPTest):
+    aktualny = LPTrening + i
+    print("Szukany x dla metody kNN należy do klasy: " + dane.iloc[aktualny]["klasa"])
     print("Według metody kNN x należy do klasy: " + odpowiedz_algorytmu_kNN[i])
     print("Dla k = ", wartosc_k)
-    if odpowiedz_algorytmu_kNN[i] is df.iloc[liczba_probek_treningowych + i]["klasa"]:
+    if odpowiedz_algorytmu_kNN[i] is dane.iloc[aktualny]["klasa"]:
         print("Algorytm kNN ma racje \n")
     else:
         print("Algorytm kNN się pomylił \n")
