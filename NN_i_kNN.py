@@ -48,27 +48,42 @@ root.mainloop()
 
 #Dane modyfikowane przez użytkownika
 liczba_probek_treningowych = 8
-liczba_probek_trening_A = 4
-liczba_probek_trening_B = 4
+
+liczba_probek_testowych = 2
 
 #Index probki testowej
 index_probka_NN = 8
 index_probka_kNN = 9
 
-listaNN=[]
+listaNN=[[],[]]
 
-for i in range(liczba_probek_treningowych):
-    listaNN.append(math.sqrt(math.pow((df.iloc[i]["c1"]-df.iloc[index_probka_NN]["c1"]),2) + math.pow((df.iloc[i]["c2"]-df.iloc[index_probka_NN]["c2"]),2)+math.pow((df.iloc[i]["c3"]-df.iloc[index_probka_NN]["c3"]),2)))
+for j in range(liczba_probek_testowych):
+    for i in range(liczba_probek_treningowych):
+        listaNN[j].append(math.sqrt(math.pow((df.iloc[i]["c1"]-df.iloc[j+liczba_probek_treningowych]["c1"]),2) + math.pow((df.iloc[i]["c2"]-df.iloc[j+liczba_probek_treningowych]["c2"]),2)+math.pow((df.iloc[i]["c3"]-df.iloc[j+liczba_probek_treningowych]["c3"]),2)))
 
 #Index punktu dla którego odległosc jest najniższą wartoscią
-min_index_NN=(listaNN).index(min(listaNN))
+#print(listaNN[j-1])
+#print(listaNN[j])
+print(listaNN)
 
-print("Szukany x dla metody NN należy do klasy: " + df.iloc[index_probka_NN]["klasa"])
-print("Według metody NN x należy do klasy: " + df.iloc[min_index_NN]["klasa"])
+min_index_NN_1=(listaNN[0]).index(min(listaNN[0]))
+min_index_NN_2=(listaNN[1]).index(min(listaNN[1]))
 
-odpowiedz_algorytmu_NN = df.iloc[min_index_NN]["klasa"]
+print("Szukany x dla metody NN należy do klasy: " + df.iloc[liczba_probek_treningowych]["klasa"])
+print("Według metody NN x należy do klasy: " + df.iloc[min_index_NN_1]["klasa"])
 
-if odpowiedz_algorytmu_NN is df.iloc[index_probka_NN]["klasa"]:
+print("Szukany x dla metody NN należy do klasy: " + df.iloc[liczba_probek_treningowych+1]["klasa"])
+print("Według metody NN x należy do klasy: " + df.iloc[min_index_NN_2]["klasa"])
+
+odpowiedz_algorytmu_NN_1 = df.iloc[min_index_NN_1]["klasa"]
+odpowiedz_algorytmu_NN_2 = df.iloc[min_index_NN_2]["klasa"]
+
+if odpowiedz_algorytmu_NN_1 is df.iloc[liczba_probek_treningowych]["klasa"]:
+        print("\n Algorytm NN ma racje")
+else:
+     print("\n Algorytm NN się pomylił")
+     
+if odpowiedz_algorytmu_NN_2 is df.iloc[liczba_probek_treningowych+1]["klasa"]:
         print("\n Algorytm NN ma racje")
 else:
      print("\n Algorytm NN się pomylił")
@@ -83,13 +98,9 @@ for i in range(liczba_probek_treningowych):
 #Index punktu dla którego odległosc jest najniższą wartoscią
 slownik_kNN={}
 
-#range(0,4)
-for i in range(0,liczba_probek_trening_A):
-    slownik_kNN['A',i]=lista_kNN[i]
-
-#range(4,8)
-for i in range(liczba_probek_trening_A,liczba_probek_trening_A + liczba_probek_trening_B):
-    slownik_kNN['B',i]=lista_kNN[i]
+for i in range(liczba_probek_treningowych):
+    klasa_probki = df.iloc[i]["klasa"]
+    slownik_kNN[klasa_probki,i]=lista_kNN[i]
 
 #print(slownik_kNN)
 posortowany_slownik_kNN={}
