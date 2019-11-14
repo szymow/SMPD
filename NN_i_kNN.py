@@ -87,9 +87,9 @@ listaNN=[[],[],[],[],[]]
 for kolejny in range(LPTest):
     for i in range(LPTrening):
         aktualny = LPTrening + kolejny
-        listaNN[kolejny].append(math.sqrt(math.pow((dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"]),2)
-        + math.pow((dane.iloc[i]["c2"]-dane.iloc[aktualny]["c2"]),2)
-        + math.pow((dane.iloc[i]["c3"]-dane.iloc[aktualny]["c3"]),2)))
+        listaNN[kolejny].append(math.sqrt(math.pow(dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"],2)
+        + math.pow(dane.iloc[i]["c2"]-dane.iloc[aktualny]["c2"],2)
+        + math.pow(dane.iloc[i]["c3"]-dane.iloc[aktualny]["c3"],2)))
 
 min_index_NN=[]
 
@@ -113,9 +113,9 @@ lista_kNN=[[],[],[],[],[]]
 for kolejny in range(LPTest):
     for i in range(LPTrening):
         aktualny = LPTrening + kolejny
-        lista_kNN[kolejny].append(math.sqrt(math.pow((dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"]),2) 
-        + math.pow((dane.iloc[i]["c2"]-dane.iloc[aktualny]["c2"]),2)
-        + math.pow((dane.iloc[i]["c3"]-dane.iloc[aktualny]["c3"]),2)))
+        lista_kNN[kolejny].append(math.sqrt(math.pow(dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"],2) 
+        + math.pow(dane.iloc[i]["c2"]-dane.iloc[aktualny]["c2"],2)
+        + math.pow(dane.iloc[i]["c3"]-dane.iloc[aktualny]["c3"],2)))
 
 odpowiedz_algorytmu_kNN = []
 
@@ -155,3 +155,56 @@ for i in range(LPTest):
         print("Algorytm kNN się pomylił \n")
      
 #https://likegeeks.com/python-gui-examples-tkinter-tutorial/
+        
+#Metoda NM najbliższych srednich
+        
+def Srednia(lst): 
+    return sum(lst) / len(lst) 
+
+probki_klasy_A_c1 = []
+probki_klasy_A_c2 = []
+probki_klasy_A_c3 = []
+probki_klasy_B_c1 = []
+probki_klasy_B_c2 = []
+probki_klasy_B_c3 = []
+
+for i in range(0,18):
+    klasa_probki = dane.iloc[i]["klasa"]
+    if klasa_probki is "A":
+        probki_klasy_A_c1.append(dane.iloc[i]["c1"])
+        probki_klasy_A_c2.append(dane.iloc[i]["c2"])
+        probki_klasy_A_c3.append(dane.iloc[i]["c3"])
+    if klasa_probki is "B":
+        probki_klasy_B_c1.append(dane.iloc[i]["c1"])
+        probki_klasy_B_c2.append(dane.iloc[i]["c2"])
+        probki_klasy_B_c3.append(dane.iloc[i]["c3"])
+
+srednia_klasy_A = []
+srednia_klasy_A.append(Srednia(probki_klasy_A_c1))
+srednia_klasy_A.append(Srednia(probki_klasy_A_c2))
+srednia_klasy_A.append(Srednia(probki_klasy_A_c3))
+
+srednia_klasy_B = []
+srednia_klasy_B.append(Srednia(probki_klasy_B_c1))
+srednia_klasy_B.append(Srednia(probki_klasy_B_c2))
+srednia_klasy_B.append(Srednia(probki_klasy_B_c3))
+
+
+#sredniaA = dane.iloc[10:14].mean(axis = 0)
+#sredniaB = dane.iloc[14:18].mean(axis = 0)
+szukany_x = dane.iloc[18]
+
+DsAx = math.sqrt(math.pow(srednia_klasy_A[0]-szukany_x[0],2) + math.pow(srednia_klasy_A[1]-szukany_x[1],2) + math.pow(srednia_klasy_A[2]-szukany_x[2],2))
+DsBx = math.sqrt(math.pow(srednia_klasy_B[0]-szukany_x[0],2) + math.pow(srednia_klasy_B[1]-szukany_x[1],2) + math.pow(srednia_klasy_B[2]-szukany_x[2],2))
+
+if DsAx < DsBx:
+    odpowiedz = 'A'
+else:
+    odpowiedz = 'B'
+    
+print("Szukany x dla metody kNN należy do klasy: " + dane.iloc[18]["klasa"])
+print("Według metody NM x należy do klasy: " + odpowiedz)
+if odpowiedz is dane.iloc[18]["klasa"]:
+    print("Algorytm NM ma racje \n")
+else:
+    print("Algorytm NM się pomylił \n")
