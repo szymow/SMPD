@@ -77,6 +77,7 @@ przyciskWybierzK = tk.Button(text=" Zatwierdź ", command=input_k, bg='green', f
 przyciskWybierzK.grid(column=2, row=3)
 
 okno.mainloop()
+#https://likegeeks.com/python-gui-examples-tkinter-tutorial/
 
 LPTest = liczba_probek_testowych
 LPTrening = liczba_probek_treningowych
@@ -93,6 +94,9 @@ for kolejny in range(LPTest):
 
 min_index_NN=[]
 
+NN_tak = 0
+NN_nie = 0
+
 for i in range(LPTest):
     min_index_NN.append((listaNN[i]).index(min(listaNN[i])))
     aktualny = LPTrening + i
@@ -102,8 +106,12 @@ for i in range(LPTest):
 
     if dane.iloc[min_index_NN[i]]["klasa"] is dane.iloc[aktualny]["klasa"]:
         print("Algorytm NN ma racje \n")
+        NN_tak = NN_tak + 1
     else:
         print("Algorytm NN się pomylił \n")
+        NN_nie = NN_nie + 1
+        
+print("Skutecznosc NN = ", (NN_tak/(NN_tak + NN_nie)*100), "% \n")
 
 
 #Metoda kNN k najbliższych sąsiadów
@@ -143,6 +151,9 @@ for odp in range(LPTest):
         odpowiedz = 'B'
     
     odpowiedz_algorytmu_kNN.append(odpowiedz)
+    
+kNN_tak = 0
+kNN_nie = 0
 
 for i in range(LPTest):
     aktualny = LPTrening + i
@@ -151,11 +162,14 @@ for i in range(LPTest):
     print("Dla k = ", wartosc_k)
     if odpowiedz_algorytmu_kNN[i] is dane.iloc[aktualny]["klasa"]:
         print("Algorytm kNN ma racje \n")
+        kNN_tak = kNN_tak + 1
     else:
         print("Algorytm kNN się pomylił \n")
+        kNN_nie = kNN_nie + 1
+
+print("Skutecznosc kNN = ", (kNN_tak/(kNN_tak + kNN_nie)*100), "% \n")
      
-#https://likegeeks.com/python-gui-examples-tkinter-tutorial/
-        
+  
 #Metoda NM najbliższych srednich
         
 def Srednia(lst): 
@@ -168,7 +182,7 @@ probki_klasy_B_c1 = []
 probki_klasy_B_c2 = []
 probki_klasy_B_c3 = []
 
-for i in range(0,18):
+for i in range(LPTrening):
     klasa_probki = dane.iloc[i]["klasa"]
     if klasa_probki is "A":
         probki_klasy_A_c1.append(dane.iloc[i]["c1"])
@@ -179,32 +193,33 @@ for i in range(0,18):
         probki_klasy_B_c2.append(dane.iloc[i]["c2"])
         probki_klasy_B_c3.append(dane.iloc[i]["c3"])
 
-srednia_klasy_A = []
-srednia_klasy_A.append(Srednia(probki_klasy_A_c1))
-srednia_klasy_A.append(Srednia(probki_klasy_A_c2))
-srednia_klasy_A.append(Srednia(probki_klasy_A_c3))
+srednia_klasy_A = [Srednia(probki_klasy_A_c1),Srednia(probki_klasy_A_c2),Srednia(probki_klasy_A_c3)]
+srednia_klasy_B = [Srednia(probki_klasy_B_c1),Srednia(probki_klasy_B_c2),Srednia(probki_klasy_B_c3)]
 
-srednia_klasy_B = []
-srednia_klasy_B.append(Srednia(probki_klasy_B_c1))
-srednia_klasy_B.append(Srednia(probki_klasy_B_c2))
-srednia_klasy_B.append(Srednia(probki_klasy_B_c3))
+NM_tak = 0
+NM_nie = 0
 
+for kolejny in range(LPTest):
+    aktualny = LPTrening + kolejny
+    szukany_x = dane.iloc[aktualny]
+    DsAx = math.sqrt(math.pow(srednia_klasy_A[0]-szukany_x[0],2) + math.pow(srednia_klasy_A[1]-szukany_x[1],2) + math.pow(srednia_klasy_A[2]-szukany_x[2],2))
+    DsBx = math.sqrt(math.pow(srednia_klasy_B[0]-szukany_x[0],2) + math.pow(srednia_klasy_B[1]-szukany_x[1],2) + math.pow(srednia_klasy_B[2]-szukany_x[2],2))
 
-#sredniaA = dane.iloc[10:14].mean(axis = 0)
-#sredniaB = dane.iloc[14:18].mean(axis = 0)
-szukany_x = dane.iloc[18]
-
-DsAx = math.sqrt(math.pow(srednia_klasy_A[0]-szukany_x[0],2) + math.pow(srednia_klasy_A[1]-szukany_x[1],2) + math.pow(srednia_klasy_A[2]-szukany_x[2],2))
-DsBx = math.sqrt(math.pow(srednia_klasy_B[0]-szukany_x[0],2) + math.pow(srednia_klasy_B[1]-szukany_x[1],2) + math.pow(srednia_klasy_B[2]-szukany_x[2],2))
-
-if DsAx < DsBx:
-    odpowiedz = 'A'
-else:
-    odpowiedz = 'B'
+    print("DsAx = ",DsAx)
+    print("DsBx = ",DsBx)
     
-print("Szukany x dla metody kNN należy do klasy: " + dane.iloc[18]["klasa"])
-print("Według metody NM x należy do klasy: " + odpowiedz)
-if odpowiedz is dane.iloc[18]["klasa"]:
-    print("Algorytm NM ma racje \n")
-else:
-    print("Algorytm NM się pomylił \n")
+    if DsAx < DsBx:
+        odpowiedz = 'A'
+    else:
+        odpowiedz = 'B'
+    
+    print("Szukany x dla metody kNN należy do klasy: " + dane.iloc[aktualny]["klasa"])
+    print("Według metody NM x należy do klasy: " + odpowiedz)
+    if odpowiedz is dane.iloc[aktualny]["klasa"]:
+        print("Algorytm NM ma racje \n")
+        NM_tak = NM_tak + 1
+    else:
+        print("Algorytm NM się pomylił \n")
+        NM_nie = NM_nie + 1
+        
+print("Skutecznosc NM = ", (NM_tak/(NM_tak + NM_nie)*100), "% \n")
