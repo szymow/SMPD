@@ -83,12 +83,12 @@ LPTest = liczba_probek_testowych
 LPTrening = liczba_probek_treningowych
 
 #Metoda NN najbliższy sąsiad
-listaNN=[[],[],[],[],[]]
+listaNN=[]
 
 for kolejny in range(LPTest):
     for i in range(LPTrening):
         aktualny = LPTrening + kolejny
-        listaNN[kolejny].append(math.sqrt(math.pow(dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"],2)
+        listaNN.append(math.sqrt(math.pow(dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"],2)
         + math.pow(dane.iloc[i]["c2"]-dane.iloc[aktualny]["c2"],2)
         + math.pow(dane.iloc[i]["c3"]-dane.iloc[aktualny]["c3"],2)))
 
@@ -98,7 +98,8 @@ NN_tak = 0
 NN_nie = 0
 
 for i in range(LPTest):
-    min_index_NN.append((listaNN[i]).index(min(listaNN[i])))
+    #0:8; 8:16; 16:32 itd.
+    min_index_NN.append((listaNN[(LPTrening*i):(LPTrening*(i+1))]).index(min(listaNN[(LPTrening*i):(LPTrening*(i+1))])))
     aktualny = LPTrening + i
     print(dane.iloc[aktualny])
     print("Szukany x dla metody NN należy do klasy: " + dane.iloc[aktualny]["klasa"])
@@ -116,12 +117,12 @@ print("Skutecznosc NN = ", (NN_tak/(NN_tak + NN_nie)*100), "% \n")
 
 #Metoda kNN k najbliższych sąsiadów
 
-lista_kNN=[[],[],[],[],[]]
+lista_kNN=[]
 
 for kolejny in range(LPTest):
     for i in range(LPTrening):
         aktualny = LPTrening + kolejny
-        lista_kNN[kolejny].append(math.sqrt(math.pow(dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"],2) 
+        lista_kNN.append(math.sqrt(math.pow(dane.iloc[i]["c1"]-dane.iloc[aktualny]["c1"],2) 
         + math.pow(dane.iloc[i]["c2"]-dane.iloc[aktualny]["c2"],2)
         + math.pow(dane.iloc[i]["c3"]-dane.iloc[aktualny]["c3"],2)))
 
@@ -134,7 +135,8 @@ for odp in range(LPTest):
     for j in range(LPTest):
         for i in range(LPTrening):
             klasa_probki = dane.iloc[i]["klasa"]
-            slownik_kNN[klasa_probki,i]=lista_kNN[j][i]
+            #0 -> 13; 13 -> 26
+            slownik_kNN[klasa_probki,i]=lista_kNN[LPTrening*j+i]
             
     posortowany_slownik_kNN={}
             
@@ -195,6 +197,9 @@ for i in range(LPTrening):
 
 srednia_klasy_A = [Srednia(probki_klasy_A_c1),Srednia(probki_klasy_A_c2),Srednia(probki_klasy_A_c3)]
 srednia_klasy_B = [Srednia(probki_klasy_B_c1),Srednia(probki_klasy_B_c2),Srednia(probki_klasy_B_c3)]
+
+print("srednia_klasy_A = ",srednia_klasy_A)
+print("srednia_klasy_B = ",srednia_klasy_B)
 
 NM_tak = 0
 NM_nie = 0
