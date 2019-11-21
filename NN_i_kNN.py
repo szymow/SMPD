@@ -29,41 +29,35 @@ def input_k():
     print("wartosc_k = ", wartosc_k)
     
 def input_trening():
+    global procent_probek_treningowych
+    procent_probek_treningowych = combo2.get()
+    procent_probek_treningowych = int(procent_probek_treningowych)
     global liczba_probek_treningowych
-    liczba_probek_treningowych = combo2.get()
+    liczba_probek_treningowych = procent_probek_treningowych * (1/100) * len(dane)
     liczba_probek_treningowych = int(liczba_probek_treningowych)
     print("liczba_probek_treningowych = ", liczba_probek_treningowych)
-
-def input_test():
     global liczba_probek_testowych
-    liczba_probek_testowych = combo3.get()
+    liczba_probek_testowych = len(dane) - liczba_probek_treningowych
     liczba_probek_testowych = int(liczba_probek_testowych)
     print("liczba_probek_testowych = ", liczba_probek_testowych)
+
     
 przyciskImportujCSV = tk.Button(text=" Importuj CSV ", 
                              command=getCSV, bg='green', fg='white', font=('helvetica', 12, 'bold'))
 przyciskImportujCSV.grid(column=1, row=0)
 
-etykieta3=Label(okno, text=" Liczba próbek treningowych: ", font=("Arial",12))
+etykieta3=Label(okno, text=" Procent próbek treningowych: [%]", font=("Arial",12))
 etykieta3.grid(column=0,row=1)
 
 combo2 = Combobox(okno)
-combo2['values']=(1,2,3,4,5,6,7,8,9,10,11,12,13)
+combo2['values']=(10,20,30,40,50,60,70,80,90)
 combo2.current(7)
 combo2.grid(column=1,row=1)
 
-etykieta3=Label(okno, text=" Liczba próbek testowych: ", font=("Arial",12))
-etykieta3.grid(column=0,row=2)
-
-combo3 = Combobox(okno)
-combo3['values']=(1,2,3,4,5)
-combo3.current(1)
-combo3.grid(column=1,row=2)
 
 przyciskWybierzTrening = tk.Button(text=" Zatwierdź ", command=input_trening, bg='green', fg='white', font=('helvetica', 12, 'bold'))
 przyciskWybierzTrening.grid(column=2, row=1)
-przyciskWybierzTest = tk.Button(text=" Zatwierdź ", command=input_test, bg='green', fg='white', font=('helvetica', 12, 'bold'))
-przyciskWybierzTest.grid(column=2, row=2)
+
 
 etykieta2=Label(okno, text=" Wartość k dla metody kNN: \t", font=("Arial",12))
 etykieta2.grid(column=0,row=3)
