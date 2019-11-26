@@ -243,6 +243,27 @@ listOfc2   =  [probki_klasy_A[1], probki_klasy_A[4], probki_klasy_A[7]]
 listOfc3  =  [probki_klasy_A[2], probki_klasy_A[5], probki_klasy_A[8]]
 listOfPodklasa = ['A1','A2','A3']
 
+liczbaPodklas = 3
+
 zippedList =  list(zip(listOfc1, listOfc2, listOfc3,listOfPodklasa))
 
-dfObj = pd.DataFrame(zippedList, columns = ['c1' , 'c2', 'c3', 'podklasa'])
+wartosci_srednie_kNM = pd.DataFrame(zippedList, columns = ["c1" , "c2", "c3", "podklasa"])
+
+startowa = LiczbaCech * liczbaPodklas
+pozostale_punkty_kNM = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"])
+
+for i in range(int((len(probki_klasy_A) / LiczbaCech) - liczbaPodklas)):
+    
+    odleglosc_od_podklasy = []
+    
+    for j in range(liczbaPodklas):
+        DsAjx = math.sqrt(math.pow(wartosci_srednie_kNM.iloc[j]["c1"]-probki_klasy_A[startowa + i],2) + math.pow(wartosci_srednie_kNM.iloc[j]["c2"]-probki_klasy_A[startowa + i + 1],2) + math.pow(wartosci_srednie_kNM.iloc[j]["c3"]-probki_klasy_A[startowa + i + 2],2))
+        odleglosc_od_podklasy.append(DsAjx)
+
+    index_min_odleglosc = odleglosc_od_podklasy.index(min(odleglosc_od_podklasy))
+    podklasa = wartosci_srednie_kNM.iloc[index_min_odleglosc]["podklasa"]
+
+    przypisywanie_podklasy = probki_klasy_A[(startowa + i):(startowa + i + LiczbaCech)]
+    przypisywanie_podklasy.append(podklasa)
+
+    pozostale_punkty_kNM.loc[i] = przypisywanie_podklasy
