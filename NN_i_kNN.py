@@ -172,39 +172,39 @@ def Srednia(lst):
 
 LiczbaCech = 3
 
-probki_klasy_A = []
-probki_klasy_B = []
+probki_klasy_A_NM = []
+probki_klasy_B_NM = []
 
-probki_klasy_A_c = []
-srednia_klasy_A = []
+probki_klasy_A_NM_c = []
+srednia_klasy_A_NM = []
 
-probki_klasy_B_c = []
-srednia_klasy_B = []
+probki_klasy_B_NM_c = []
+srednia_klasy_B_NM = []
 
 for i in range(LPTrening):
     klasa_probki = dane.iloc[i]["klasa"]
     if klasa_probki is "A":
         for j in range(LiczbaCech): 
-            probki_klasy_A.append(dane.iloc[i][j])
+            probki_klasy_A_NM.append(dane.iloc[i][j])
     if klasa_probki is "B":
         for j in range(LiczbaCech):
-            probki_klasy_B.append(dane.iloc[i][j])
+            probki_klasy_B_NM.append(dane.iloc[i][j])
 
 for i in range(LiczbaCech):
     #pobieramy kolejne wartosci z listy co Liczbę Cech
-    for j in range(int(len(probki_klasy_A)/LiczbaCech)):
-        probki_klasy_A_c.append(probki_klasy_A[i + LiczbaCech * j])
-    srednia_klasy_A.append(Srednia(probki_klasy_A_c))
-    probki_klasy_A_c = []
+    for j in range(int(len(probki_klasy_A_NM)/LiczbaCech)):
+        probki_klasy_A_NM_c.append(probki_klasy_A_NM[i + LiczbaCech * j])
+    srednia_klasy_A_NM.append(Srednia(probki_klasy_A_NM_c))
+    probki_klasy_A_NM_c = []
     
 for i in range(LiczbaCech):
-    for j in range(int(len(probki_klasy_B)/LiczbaCech)):
-        probki_klasy_B_c.append(probki_klasy_B[i + LiczbaCech * j])
-    srednia_klasy_B.append(Srednia(probki_klasy_B_c))
-    probki_klasy_B_c = []
+    for j in range(int(len(probki_klasy_B_NM)/LiczbaCech)):
+        probki_klasy_B_NM_c.append(probki_klasy_B_NM[i + LiczbaCech * j])
+    srednia_klasy_B_NM.append(Srednia(probki_klasy_B_NM_c))
+    probki_klasy_B_NM_c = []
 
-print("srednia_klasy_A = ",srednia_klasy_A)
-print("srednia_klasy_B = ",srednia_klasy_B)
+print("srednia_klasy_A_NM = ",srednia_klasy_A_NM)
+print("srednia_klasy_B_NM = ",srednia_klasy_B_NM)
 
 NM_tak = 0
 NM_nie = 0
@@ -212,8 +212,8 @@ NM_nie = 0
 for kolejny in range(LPTest):
     aktualny = LPTrening + kolejny
     szukany_x = dane.iloc[aktualny]
-    DsAx = math.sqrt(math.pow(srednia_klasy_A[0]-szukany_x[0],2) + math.pow(srednia_klasy_A[1]-szukany_x[1],2) + math.pow(srednia_klasy_A[2]-szukany_x[2],2))
-    DsBx = math.sqrt(math.pow(srednia_klasy_B[0]-szukany_x[0],2) + math.pow(srednia_klasy_B[1]-szukany_x[1],2) + math.pow(srednia_klasy_B[2]-szukany_x[2],2))
+    DsAx = math.sqrt(math.pow(srednia_klasy_A_NM[0]-szukany_x[0],2) + math.pow(srednia_klasy_A_NM[1]-szukany_x[1],2) + math.pow(srednia_klasy_A_NM[2]-szukany_x[2],2))
+    DsBx = math.sqrt(math.pow(srednia_klasy_B_NM[0]-szukany_x[0],2) + math.pow(srednia_klasy_B_NM[1]-szukany_x[1],2) + math.pow(srednia_klasy_B_NM[2]-szukany_x[2],2))
 
     print("DsAx = ",DsAx)
     print("DsBx = ",DsBx)
@@ -234,14 +234,22 @@ for kolejny in range(LPTest):
         
 print("Skutecznosc NM = ", (NM_tak/(NM_tak + NM_nie)*100), "% \n")
 
-print("probki_klasy_A = ",probki_klasy_A)
-
 #Metoda kNM k najbliższych srednich
 
-listOfc1 =  [probki_klasy_A[0], probki_klasy_A[3], probki_klasy_A[6]]
-listOfc2   =  [probki_klasy_A[1], probki_klasy_A[4], probki_klasy_A[7]]
-listOfc3  =  [probki_klasy_A[2], probki_klasy_A[5], probki_klasy_A[8]]
-listOfPodklasa = ['A1','A2','A3']
+probki_klasy_A_kNM = []
+probki_klasy_B_kNM = []
+
+for i in range(int(len(dane))):
+    klasa_probki = dane.iloc[i]["klasa"]
+    if klasa_probki is "A":
+        for j in range(LiczbaCech): 
+            probki_klasy_A_kNM.append(dane.iloc[i][j])
+            
+
+listOfc1 =  [probki_klasy_A_kNM[0], probki_klasy_A_kNM[3], probki_klasy_A_kNM[6]]
+listOfc2 =  [probki_klasy_A_kNM[1], probki_klasy_A_kNM[4], probki_klasy_A_kNM[7]]
+listOfc3 =  [probki_klasy_A_kNM[2], probki_klasy_A_kNM[5], probki_klasy_A_kNM[8]]
+listOfPodklasa = ["A1","A2","A3"]
 
 liczbaPodklas = 3
 
@@ -252,18 +260,56 @@ wartosci_srednie_kNM = pd.DataFrame(zippedList, columns = ["c1" , "c2", "c3", "p
 startowa = LiczbaCech * liczbaPodklas
 pozostale_punkty_kNM = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"])
 
-for i in range(int((len(probki_klasy_A) / LiczbaCech) - liczbaPodklas)):
+for i in range(int((len(probki_klasy_A_kNM) / LiczbaCech) - liczbaPodklas)):
     
     odleglosc_od_podklasy = []
     
     for j in range(liczbaPodklas):
-        DsAjx = math.sqrt(math.pow(wartosci_srednie_kNM.iloc[j]["c1"]-probki_klasy_A[startowa + i],2) + math.pow(wartosci_srednie_kNM.iloc[j]["c2"]-probki_klasy_A[startowa + i + 1],2) + math.pow(wartosci_srednie_kNM.iloc[j]["c3"]-probki_klasy_A[startowa + i + 2],2))
+        DsAjx = math.sqrt(math.pow(wartosci_srednie_kNM.iloc[j]["c1"]-probki_klasy_A_NM[startowa + i],2) + math.pow(wartosci_srednie_kNM.iloc[j]["c2"]-probki_klasy_A_NM[startowa + i + 1],2) + math.pow(wartosci_srednie_kNM.iloc[j]["c3"]-probki_klasy_A_NM[startowa + i + 2],2))
         odleglosc_od_podklasy.append(DsAjx)
 
     index_min_odleglosc = odleglosc_od_podklasy.index(min(odleglosc_od_podklasy))
     podklasa = wartosci_srednie_kNM.iloc[index_min_odleglosc]["podklasa"]
 
-    przypisywanie_podklasy = probki_klasy_A[(startowa + i):(startowa + i + LiczbaCech)]
+    przypisywanie_podklasy = probki_klasy_A_NM[(startowa + i):(startowa + i + LiczbaCech)]
     przypisywanie_podklasy.append(podklasa)
 
     pozostale_punkty_kNM.loc[i] = przypisywanie_podklasy
+
+"""
+wartosci_srednie_kNM["c1"] = wartosci_srednie_kNM["c1"].astype(float)
+wartosci_srednie_kNM["c2"] = wartosci_srednie_kNM["c2"].astype(float)
+wartosci_srednie_kNM["c3"] = wartosci_srednie_kNM["c3"].astype(float)
+
+pozostale_punkty_kNM["c1"] = pozostale_punkty_kNM["c1"].astype(float)
+pozostale_punkty_kNM["c2"] = pozostale_punkty_kNM["c2"].astype(float)
+pozostale_punkty_kNM["c3"] = pozostale_punkty_kNM["c3"].astype(float)
+"""
+laczenie = [wartosci_srednie_kNM, pozostale_punkty_kNM]
+polaczony_df = pd.concat(laczenie)
+
+probki_podklasy_A1_kNM = []
+probki_podklasy_A2_kNM = []
+probki_podklasy_A3_kNM = []
+
+for i in range(int(len(polaczony_df))):
+    podklasa_probki = polaczony_df.iloc[i]["podklasa"]
+    if podklasa_probki is "A1":
+        for j in range(LiczbaCech): 
+            probki_podklasy_A1_kNM.append(polaczony_df.iloc[i][j])
+    if podklasa_probki is "A2":
+        for j in range(LiczbaCech): 
+            probki_podklasy_A2_kNM.append(polaczony_df.iloc[i][j])
+    if podklasa_probki is "A3":
+        for j in range(LiczbaCech): 
+            probki_podklasy_A3_kNM.append(polaczony_df.iloc[i][j])
+     
+probki_podklasy_A1_kNM_c = []
+srednia_podklasy_A1_kNM = []
+
+for i in range(LiczbaCech):
+    #pobieramy kolejne wartosci z listy co Liczbę Cech
+    for j in range(int(len(probki_podklasy_A1_kNM)/LiczbaCech)):
+        probki_podklasy_A1_kNM_c.append(probki_podklasy_A1_kNM[i + LiczbaCech * j])
+    srednia_podklasy_A1_kNM.append(Srednia(probki_podklasy_A1_kNM_c))
+    probki_podklasy_A1_kNM_c = []
