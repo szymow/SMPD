@@ -18,7 +18,9 @@ etykieta.grid(column = 0, row = 0)
 def getCSV():
     global dane
     sciezkaDoPliku = filedialog.askopenfilename()
-    dane=pd.read_csv(sciezkaDoPliku)
+    dane = pd.read_csv(sciezkaDoPliku)
+    #Losowanie kolejnosci próbek
+    dane = dane.sample(frac=1)
     print(dane)
 
 #Dane modyfikowane przez użytkownika    
@@ -41,8 +43,7 @@ def input_trening():
     liczba_probek_testowych = int(liczba_probek_testowych)
     print("liczba_probek_testowych = ", liczba_probek_testowych)
 
-    
-przyciskImportujCSV = tk.Button(text=" Importuj CSV ", 
+przyciskImportujCSV = tk.Button(text=" Importuj polosowany CSV ", 
                              command=getCSV, bg='green', fg='white', font=('helvetica', 12, 'bold'))
 przyciskImportujCSV.grid(column=1, row=0)
 
@@ -54,10 +55,8 @@ combo2['values']=(10,20,30,40,50,60,70,80,90)
 combo2.current(7)
 combo2.grid(column=1,row=1)
 
-
 przyciskWybierzTrening = tk.Button(text=" Zatwierdź ", command=input_trening, bg='green', fg='white', font=('helvetica', 12, 'bold'))
 przyciskWybierzTrening.grid(column=2, row=1)
-
 
 etykieta2=Label(okno, text=" Wartość k dla metody kNN: \t", font=("Arial",12))
 etykieta2.grid(column=0,row=3)
@@ -171,26 +170,38 @@ print("Skutecznosc kNN = ", (kNN_tak/(kNN_tak + kNN_nie)*100), "% \n")
 def Srednia(lst): 
     return sum(lst) / len(lst) 
 
-probki_klasy_A_c1 = []
-probki_klasy_A_c2 = []
-probki_klasy_A_c3 = []
-probki_klasy_B_c1 = []
-probki_klasy_B_c2 = []
-probki_klasy_B_c3 = []
+LiczbaCech = 3
+
+probki_klasy_A = []
+probki_klasy_B = []
+
+probki_klasy_A_c = []
+srednia_klasy_A = []
+
+probki_klasy_B_c = []
+srednia_klasy_B = []
 
 for i in range(LPTrening):
     klasa_probki = dane.iloc[i]["klasa"]
     if klasa_probki is "A":
-        probki_klasy_A_c1.append(dane.iloc[i]["c1"])
-        probki_klasy_A_c2.append(dane.iloc[i]["c2"])
-        probki_klasy_A_c3.append(dane.iloc[i]["c3"])
+        for j in range(LiczbaCech): 
+            probki_klasy_A.append(dane.iloc[i][j])
     if klasa_probki is "B":
-        probki_klasy_B_c1.append(dane.iloc[i]["c1"])
-        probki_klasy_B_c2.append(dane.iloc[i]["c2"])
-        probki_klasy_B_c3.append(dane.iloc[i]["c3"])
+        for j in range(LiczbaCech):
+            probki_klasy_B.append(dane.iloc[i][j])
 
-srednia_klasy_A = [Srednia(probki_klasy_A_c1),Srednia(probki_klasy_A_c2),Srednia(probki_klasy_A_c3)]
-srednia_klasy_B = [Srednia(probki_klasy_B_c1),Srednia(probki_klasy_B_c2),Srednia(probki_klasy_B_c3)]
+for i in range(LiczbaCech):
+    #pobieramy kolejne wartosci z listy co Liczbę Cech
+    for j in range(int(len(probki_klasy_A)/LiczbaCech)):
+        probki_klasy_A_c.append(probki_klasy_A[i + LiczbaCech * j])
+    srednia_klasy_A.append(Srednia(probki_klasy_A_c))
+    probki_klasy_A_c = []
+    
+for i in range(LiczbaCech):
+    for j in range(int(len(probki_klasy_B)/LiczbaCech)):
+        probki_klasy_B_c.append(probki_klasy_B[i + LiczbaCech * j])
+    srednia_klasy_B.append(Srednia(probki_klasy_B_c))
+    probki_klasy_B_c = []
 
 print("srednia_klasy_A = ",srednia_klasy_A)
 print("srednia_klasy_B = ",srednia_klasy_B)
@@ -222,3 +233,16 @@ for kolejny in range(LPTest):
         NM_nie = NM_nie + 1
         
 print("Skutecznosc NM = ", (NM_tak/(NM_tak + NM_nie)*100), "% \n")
+
+print("probki_klasy_A = ",probki_klasy_A)
+
+#Metoda kNM k najbliższych srednich
+
+listOfc1 =  [probki_klasy_A[0], probki_klasy_A[3], probki_klasy_A[6]]
+listOfc2   =  [probki_klasy_A[1], probki_klasy_A[4], probki_klasy_A[7]]
+listOfc3  =  [probki_klasy_A[2], probki_klasy_A[5], probki_klasy_A[8]]
+listOfPodklasa = ['A1','A2','A3']
+
+zippedList =  list(zip(listOfc1, listOfc2, listOfc3,listOfPodklasa))
+
+dfObj = pd.DataFrame(zippedList, columns = ['c1' , 'c2', 'c3', 'podklasa'])
