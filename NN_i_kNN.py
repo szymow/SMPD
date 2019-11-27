@@ -236,48 +236,40 @@ print("Skutecznosc NM = ", (NM_tak/(NM_tak + NM_nie)*100), "% \n")
 
 #Metoda kNM k najbliższych srednich
 
-probki_klasy_A_kNM = []
-probki_klasy_B_kNM = []
+probki_klasy_A_kNM = pd.DataFrame(columns=["c1", "c2", "c3"])
 
 for i in range(int(len(dane))):
     klasa_probki = dane.iloc[i]["klasa"]
     if klasa_probki is "A":
-        for j in range(LiczbaCech): 
-            probki_klasy_A_kNM.append(dane.iloc[i][j])
-            
+        probki_klasy_A_kNM.loc[i] = dane.iloc[i]
 
-listOfc1 =  [probki_klasy_A_kNM[0], probki_klasy_A_kNM[3], probki_klasy_A_kNM[6]]
-listOfc2 =  [probki_klasy_A_kNM[1], probki_klasy_A_kNM[4], probki_klasy_A_kNM[7]]
-listOfc3 =  [probki_klasy_A_kNM[2], probki_klasy_A_kNM[5], probki_klasy_A_kNM[8]]
-listOfPodklasa = ["A1","A2","A3"]
+probki_klasy_A_kNM = probki_klasy_A_kNM.reset_index(drop=True)        
+probki_klasy_A_kNM["podklasa"] = ""
 
 liczbaPodklas = 3
+index = liczbaPodklas + 1
 
-zippedList =  list(zip(listOfc1, listOfc2, listOfc3,listOfPodklasa))
+podklasy = ['A{}'.format(i) for i in range(1, index)]
 
-wartosci_srednie_kNM = pd.DataFrame(zippedList, columns = ["c1" , "c2", "c3", "podklasa"])
+for i in range(liczbaPodklas):      
+    probki_klasy_A_kNM.loc[i]["podklasa"] = podklasy[i]
 
-startowa = LiczbaCech * liczbaPodklas
-pozostale_punkty_kNM = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"])
 
-for i in range(int((len(probki_klasy_A_kNM) / LiczbaCech) - liczbaPodklas)):
+for i in range(int((len(probki_klasy_A_kNM)) - liczbaPodklas)):
     
     odleglosc_od_podklasy = []
     
     for j in range(liczbaPodklas):
-        DsAjx = math.sqrt(math.pow(wartosci_srednie_kNM.iloc[j]["c1"]-probki_klasy_A_NM[startowa + i],2) + math.pow(wartosci_srednie_kNM.iloc[j]["c2"]-probki_klasy_A_NM[startowa + i + 1],2) + math.pow(wartosci_srednie_kNM.iloc[j]["c3"]-probki_klasy_A_NM[startowa + i + 2],2))
+        DsAjx = math.sqrt(math.pow(probki_klasy_A_kNM.iloc[j]["c1"] - 
+                                   probki_klasy_A_kNM.iloc[liczbaPodklas + i]["c1"],2) 
+            + math.pow(probki_klasy_A_kNM.iloc[j]["c2"] - probki_klasy_A_kNM.iloc[liczbaPodklas + i]["c2"],2) 
+            + math.pow(probki_klasy_A_kNM.iloc[j]["c3"] - probki_klasy_A_kNM.iloc[liczbaPodklas + i]["c3"],2))
         odleglosc_od_podklasy.append(DsAjx)
 
     index_min_odleglosc = odleglosc_od_podklasy.index(min(odleglosc_od_podklasy))
-    podklasa = wartosci_srednie_kNM.iloc[index_min_odleglosc]["podklasa"]
-
-    przypisywanie_podklasy = probki_klasy_A_NM[(startowa + i):(startowa + i + LiczbaCech)]
-    przypisywanie_podklasy.append(podklasa)
-
-    pozostale_punkty_kNM.loc[i] = przypisywanie_podklasy
-
-laczenie = [wartosci_srednie_kNM, pozostale_punkty_kNM]
-polaczony_df = pd.concat(laczenie)
+    podklasa = probki_klasy_A_kNM.iloc[index_min_odleglosc]["podklasa"]
+    
+    probki_klasy_A_kNM.loc[liczbaPodklas + i]["podklasa"] = podklasa
 
 
 probki_podklasy_A1_kNM = []
