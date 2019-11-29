@@ -373,11 +373,29 @@ def oblicz_kNM():
     print(wartosci_srednie)
     kolejny_df = kolejny_krok_obliczen(probki_klasy_A_kNM, wartosci_srednie)
     print(kolejny_df)
+    efekt = porownanie_dopasowania(probki_klasy_A_kNM, kolejny_df)
+    print(efekt)
+    if efekt is True:
+        return 0
     podzielone_probki = dzielenie_na_podklasy(kolejny_df)
     print(podzielone_probki)
     wartosci_srednie = obliczenie_wartosci_srednich(podzielone_probki)
     print(wartosci_srednie)
     jeszcze_kolejny_df = kolejny_krok_obliczen(kolejny_df, wartosci_srednie)
     print(jeszcze_kolejny_df)
+    efekt = porownanie_dopasowania(kolejny_df, jeszcze_kolejny_df)
+    print(efekt)
+    if efekt is True:
+        return 0
+    podzielone_probki = dzielenie_na_podklasy(jeszcze_kolejny_df)
+    print(podzielone_probki)
+    wartosci_srednie = obliczenie_wartosci_srednich(podzielone_probki)
+    print(wartosci_srednie)
+    jeszcze_2_kolejny_df = kolejny_krok_obliczen(jeszcze_kolejny_df, wartosci_srednie)
+    print(jeszcze_2_kolejny_df)
+    efekt = porownanie_dopasowania(jeszcze_kolejny_df, jeszcze_2_kolejny_df)
+    print(efekt)
+    if efekt is True:
+        return 0
 
         
