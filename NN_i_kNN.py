@@ -45,7 +45,7 @@ def input_trening():
 
 def input_kNM():
     global liczbaPodklas
-    liczbaPodklas = combo.get()
+    liczbaPodklas = combo3.get()
     liczbaPodklas = int(liczbaPodklas)
     print("liczbaPodklas = ", liczbaPodklas)
 
@@ -264,7 +264,7 @@ for i in range(int(len(dane))):
 probki_klasy_A_kNM = probki_klasy_A_kNM.reset_index(drop=True)        
 probki_klasy_A_kNM["podklasa"] = ""
 
-liczbaPodklas = 3
+#liczbaPodklas = 3
 index = liczbaPodklas + 1
 
 podklasy = ["A{}".format(i) for i in range(1, index)]
@@ -289,7 +289,7 @@ for i in range(int((len(probki_klasy_A_kNM)) - liczbaPodklas)):
 
 def przypisywanie_do_podklas(probki,srednie):
     for i in range(int(len(probki))):
-        odleglosc_od_podklasy = []
+        odleglosc = []      #odleglosc_od_podklasy
     
         for j in range(liczbaPodklas):
             DsAjx = math.sqrt(math.pow(srednie.iloc[j]["c1"] - probki.iloc[i]["c1"],2) 
@@ -297,8 +297,8 @@ def przypisywanie_do_podklas(probki,srednie):
                 + math.pow(srednie.iloc[j]["c3"] - probki.iloc[i]["c3"],2))
             odleglosc_od_podklasy.append(DsAjx)
 
-        index_min_odleglosc = odleglosc_od_podklasy.index(min(odleglosc_od_podklasy))
-        podklasa = srednie.iloc[index_min_odleglosc]["podklasa"]
+        indeks = odleglosc.index(min(odleglosc))   #index_min_odleglosc
+        podklasa = srednie.iloc[indeks]["podklasa"]
     
         probki.loc[i]["podklasa"] = podklasa
     return probki
@@ -326,57 +326,51 @@ def dzielenie_na_podklasy(probki):
 
 def obliczenie_wartosci_srednich(podzielone):
 
-    wartosci_srednie_kNM = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"])
-    index = 0
+    srednie = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"]) #wartosci_srednie_kNM
+    indeks = 0
     
     for element in podzielone:
     
         if type(element) is list:
-
-            probki_podklasy_kNM_c = []
-            srednia_podklasy_kNM = []
+            probki = []     #probki_podklasy_kNM_c
+            srednia = []    #srednia_podklasy_kNM
         
             for i in range(LiczbaCech):
                 #pobieramy kolejne wartosci z listy co Liczbę Cech
                 for j in range(int(len(element)/LiczbaCech)):
-                    probki_podklasy_kNM_c.append(element[i + LiczbaCech * j])
-                if(len(probki_podklasy_kNM_c) is not 0):
-                    srednia_podklasy_kNM.append(Srednia(probki_podklasy_kNM_c))
+                    probki.append(element[i + LiczbaCech * j])
+                if(len(probki) is not 0):
+                    srednia.append(Srednia(probki))
                 else:
-                    srednia_podklasy_kNM.append(0)
-                probki_podklasy_kNM_c = []
+                    srednia.append(0)
+                probki = []
     
         if type(element) is str:
-            srednia_podklasy_kNM.append(element)    
-            wartosci_srednie_kNM.loc[index] = srednia_podklasy_kNM
-            index = index + 1
+            srednia.append(element)    
+            srednie.loc[indeks] = srednia
+            indeks = indeks + 1
             
-    return wartosci_srednie_kNM
+    return srednie
 
 def kolejny_krok_obliczen(probki, srednie):
 
-    kolejny_df_kNM = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"])
+    kolejny = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"]) #kolejny_df_kNM
 
     for i in range(int(len(probki))):
-    
-        odleglosc_od_podklasy = []
+        odleglosc = [] #odleglosc_od_podklasy
     
         for j in range(liczbaPodklas):
-            DsAjx = math.sqrt(math.pow(srednie.iloc[j]["c1"]-probki.iloc[i]["c1"],2) + math.pow(srednie.iloc[j]["c2"]-probki.iloc[i]["c2"],2) + math.pow(srednie.iloc[j]["c3"]-probki.iloc[i]["c3"],2))
-            odleglosc_od_podklasy.append(DsAjx)
+            DsAjx = math.sqrt(math.pow(srednie.iloc[j]["c1"] - probki.iloc[i]["c1"],2) + 
+                              math.pow(srednie.iloc[j]["c2"] - probki.iloc[i]["c2"],2) + 
+                              math.pow(srednie.iloc[j]["c3"] - probki.iloc[i]["c3"],2))
+            odleglosc.append(DsAjx)
 
-        index_min_odleglosc = odleglosc_od_podklasy.index(min(odleglosc_od_podklasy))
-        podklasa = srednie.iloc[index_min_odleglosc]["podklasa"]
+        indeks = odleglosc.index(min(odleglosc)) #index_min_odleglosc
+        podklasa = srednie.iloc[indeks]["podklasa"]
 
-        przypisywanie_podklasy = []
-        przypisywanie_podklasy.append(probki.iloc[i]["c1"])
-        przypisywanie_podklasy.append(probki.iloc[i]["c2"])
-        przypisywanie_podklasy.append(probki.iloc[i]["c3"])
-        przypisywanie_podklasy.append(podklasa)
-
-        kolejny_df_kNM.loc[i] = przypisywanie_podklasy
+        kolejny.loc[i] = [probki.iloc[i]["c1"], probki.iloc[i]["c2"], probki.iloc[i]["c3"], podklasa]
         
-    return kolejny_df_kNM
+    return kolejny
     
 def porownanie_dopasowania(poprzedni,kolejny):
     return sum(poprzedni["podklasa"] == kolejny["podklasa"]) == len(kolejny["podklasa"])
