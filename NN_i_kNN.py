@@ -43,6 +43,12 @@ def input_trening():
     liczba_probek_testowych = int(liczba_probek_testowych)
     print("liczba_probek_testowych = ", liczba_probek_testowych)
 
+def input_kNM():
+    global liczbaPodklas
+    liczbaPodklas = combo.get()
+    liczbaPodklas = int(liczbaPodklas)
+    print("liczbaPodklas = ", liczbaPodklas)
+
 przyciskImportujCSV = tk.Button(text=" Importuj polosowany CSV ", 
                              command=getCSV, bg='green', fg='white', font=('helvetica', 12, 'bold'))
 przyciskImportujCSV.grid(column=1, row=0)
@@ -68,6 +74,17 @@ combo.grid(column=1,row=3)
 
 przyciskWybierzK = tk.Button(text=" Zatwierdź ", command=input_k, bg='green', fg='white', font=('helvetica', 12, 'bold'))
 przyciskWybierzK.grid(column=2, row=3)
+
+etykieta4=Label(okno, text=" Liczba podklas k dla metody kNM: \t", font=("Arial",12))
+etykieta4.grid(column=0,row=4)
+
+combo3 = Combobox(okno)
+combo3['values']=(1,2,3,4,5,6,7,8)
+combo3.current(2)
+combo3.grid(column=1,row=4)
+
+przyciskWybierzKNM = tk.Button(text=" Zatwierdź ", command=input_kNM, bg='green', fg='white', font=('helvetica', 12, 'bold'))
+przyciskWybierzKNM.grid(column=2, row=4)
 
 okno.mainloop()
 #https://likegeeks.com/python-gui-examples-tkinter-tutorial/
@@ -200,7 +217,8 @@ for i in range(LiczbaCech):
 for i in range(LiczbaCech):
     for j in range(int(len(probki_klasy_B_NM)/LiczbaCech)):
         probki_klasy_B_NM_c.append(probki_klasy_B_NM[i + LiczbaCech * j])
-    srednia_klasy_B_NM.append(Srednia(probki_klasy_B_NM_c))
+        if(len(probki_klasy_B_NM_c) is not 0):
+            srednia_klasy_B_NM.append(Srednia(probki_klasy_B_NM_c))
     probki_klasy_B_NM_c = []
 
 print("srednia_klasy_A_NM = ",srednia_klasy_A_NM)
@@ -363,39 +381,41 @@ def kolejny_krok_obliczen(probki, srednie):
 def porownanie_dopasowania(poprzedni,kolejny):
     return sum(poprzedni["podklasa"] == kolejny["podklasa"]) == len(kolejny["podklasa"])
 
-    
-def oblicz_kNM():
-    global probki_klasy_A_kNM
-    print(probki_klasy_A_kNM)
-    podzielone_probki = dzielenie_na_podklasy(probki_klasy_A_kNM)
+def oblicz_kNM(poprzedni):
+    podzielone_probki = dzielenie_na_podklasy(poprzedni)
     print(podzielone_probki)
     wartosci_srednie = obliczenie_wartosci_srednich(podzielone_probki)
     print(wartosci_srednie)
-    kolejny_df = kolejny_krok_obliczen(probki_klasy_A_kNM, wartosci_srednie)
-    print(kolejny_df)
+    nastepny = kolejny_krok_obliczen(poprzedni, wartosci_srednie)
+    print(nastepny)
+    return nastepny
+    
+    
+def main():
+    global probki_klasy_A_kNM
+    global podzielone_probki    
+    global wartosci_srednie
+    
+    print(probki_klasy_A_kNM)
+    kolejny_df = oblicz_kNM(probki_klasy_A_kNM)
     efekt = porownanie_dopasowania(probki_klasy_A_kNM, kolejny_df)
     print(efekt)
-    if efekt is True:
-        return 0
-    podzielone_probki = dzielenie_na_podklasy(kolejny_df)
-    print(podzielone_probki)
-    wartosci_srednie = obliczenie_wartosci_srednich(podzielone_probki)
-    print(wartosci_srednie)
-    jeszcze_kolejny_df = kolejny_krok_obliczen(kolejny_df, wartosci_srednie)
-    print(jeszcze_kolejny_df)
-    efekt = porownanie_dopasowania(kolejny_df, jeszcze_kolejny_df)
-    print(efekt)
-    if efekt is True:
-        return 0
-    podzielone_probki = dzielenie_na_podklasy(jeszcze_kolejny_df)
-    print(podzielone_probki)
-    wartosci_srednie = obliczenie_wartosci_srednich(podzielone_probki)
-    print(wartosci_srednie)
-    jeszcze_2_kolejny_df = kolejny_krok_obliczen(jeszcze_kolejny_df, wartosci_srednie)
-    print(jeszcze_2_kolejny_df)
-    efekt = porownanie_dopasowania(jeszcze_kolejny_df, jeszcze_2_kolejny_df)
-    print(efekt)
-    if efekt is True:
-        return 0
+    while True:
+        jeszcze_kolejny_df = oblicz_kNM(kolejny_df)
+        efekt = porownanie_dopasowania(kolejny_df, jeszcze_kolejny_df)
+        print(efekt)
+        if efekt is True:
+            break
+        jeszcze_2_kolejny_df = oblicz_kNM(jeszcze_kolejny_df)
+        efekt = porownanie_dopasowania(jeszcze_kolejny_df, jeszcze_2_kolejny_df)
+        print(efekt)
+        if efekt is True:
+            break
+        jeszcze_3_kolejny_df = oblicz_kNM(jeszcze_2_kolejny_df)
+        efekt = porownanie_dopasowania(jeszcze_2_kolejny_df, jeszcze_3_kolejny_df)
+        print(efekt)
+        if efekt is True:
+            break
+        
 
         
