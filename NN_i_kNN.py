@@ -303,25 +303,20 @@ def przypisywanie_do_podklas(probki,srednie):
         probki.loc[i]["podklasa"] = podklasa
     return probki
 
+import itertools
+
 def dzielenie_na_podklasy(probki):
-
-    podklasa_A1 = []
-    podklasa_A2 = []
-    podklasa_A3 = []
-
-    for i in range(int(len(probki))):
-        podklasa_probki = probki.iloc[i]["podklasa"]
-        if (podklasa_probki == "A1"):
-            for j in range(LiczbaCech): 
-                podklasa_A1.append(probki.iloc[i][j])
-        if (podklasa_probki == "A2"):
-            for j in range(LiczbaCech): 
-                podklasa_A2.append(probki.iloc[i][j])
-        if (podklasa_probki == "A3"):
-            for j in range(LiczbaCech): 
-                podklasa_A3.append(probki.iloc[i][j])
-
-    podklasa_A123 = (podklasa_A1,"A1", podklasa_A2,"A2", podklasa_A3,"A3")
+    
+    podklasa_A123 = []
+    
+    for wartosc_podklasy in podklasy:
+        temp_df = probki_klasy_A_kNM.loc[probki_klasy_A_kNM.podklasa == wartosc_podklasy, "c1":"c3"]
+        temp = temp_df.values.tolist()
+        # Zmiana multidimentional list na one dimentional
+        temp_list = list(itertools.chain(*temp))
+        podklasa_A123.append(temp_list)
+        podklasa_A123.append(wartosc_podklasy)
+    
     return podklasa_A123
 
 def obliczenie_wartosci_srednich(podzielone):
