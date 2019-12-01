@@ -10,6 +10,7 @@ import tkinter as tk
 from tkinter import filedialog, Label
 from tkinter.ttk import Combobox
 import pandas as pd
+import numpy as np
 import math
 
 okno=tk.Tk()
@@ -81,3 +82,41 @@ for i in range(int(len(srednia_Acer))):
 
 najlepszaCecha = wspolczynniki.index(max(wspolczynniki))
 print("najlepszaCecha Fisher dla jednej cechy to: ",najlepszaCecha)
+
+
+wspolczynniki = pd.DataFrame()
+
+for j in klasa_Acer.columns:
+    wspolczynniki[j] = j
+    index = 0
+    for i in klasa_Acer.columns:
+        licznik = math.sqrt(pow(srednia_Acer[j] - srednia_Quercus[j], 2) + pow(srednia_Acer[i] - srednia_Quercus[i], 2))
+        
+        macierzA = np.array(klasa_Acer.loc[:, [j, i]])
+        macierzSrednichA = np.array(srednia_Acer.loc[[j, i]])
+        przedTransA = np.mat(macierzA) - np.mat(macierzSrednichA)
+        transA = przedTransA.T
+        
+        resultA = np.mat(transA) * np.mat(przedTransA)
+        dzielnikA = 1/len(macierzA)
+        przedDetA = dzielnikA * resultA
+        detA = np.linalg.det(przedDetA)
+        
+        macierzB = np.array(klasa_Quercus.loc[:, [j, i]])
+        macierzSrednichB = np.array(srednia_Quercus.loc[[j, i]])
+        przedTransB = np.mat(macierzB) - np.mat(macierzSrednichB)
+        transB = przedTransB.T
+        
+        resultB = np.mat(transB) * np.mat(przedTransB)
+        dzielnikB = 1/len(macierzB)
+        przedDetB = dzielnikB * resultB
+        detB = np.linalg.det(przedDetB)
+        
+        mianownik = detA + detB
+        
+        if mianownik != 0:
+            wspolczynniki.loc[index, j] = (licznik / mianownik)
+        else:
+            wspolczynniki.loc[index, j] = 0
+            
+        index = index + 1
