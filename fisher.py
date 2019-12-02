@@ -83,6 +83,7 @@ for i in range(int(len(srednia_Acer))):
 najlepszaCecha = wspolczynniki.index(max(wspolczynniki))
 print("najlepszaCecha Fisher dla jednej cechy to: ",najlepszaCecha)
 
+#Liczenie najlepszych dwoch cech
 
 def liczenie(zmienna1, zmienna2, klasa, srednia):
     macierz = np.array(klasa.loc[:, [zmienna2, zmienna1]])
@@ -98,11 +99,9 @@ def liczenie(zmienna1, zmienna2, klasa, srednia):
     return det
     
 
-wspolczynnikiF = pd.DataFrame()
+maksymalny = 1
 
 for kolumny in klasa_Acer.columns:
-    wspolczynnikiF[kolumny] = kolumny
-    indeks = 0
     for wiersze in klasa_Acer.columns:
         licznik = math.sqrt(pow(srednia_Acer[kolumny] - srednia_Quercus[kolumny], 2) + pow(srednia_Acer[wiersze] - srednia_Quercus[wiersze], 2))
         
@@ -112,17 +111,18 @@ for kolumny in klasa_Acer.columns:
         mianownik = detA + detB
         
         if mianownik != 0:
-            wspolczynnikiF.loc[indeks, kolumny] = (licznik / mianownik)
+            wspolczynnikF = (licznik / mianownik)
         else:
-            wspolczynnikiF.loc[indeks, kolumny] = 0
-            
-        indeks = indeks + 1
+            wspolczynnikF = 0
         
-najlepsze2Cechy_1 = max(wspolczynnikiF)
-najlepsze2Cechy_2 = wspolczynnikiF[wspolczynnikiF[max(wspolczynnikiF)]==wspolczynnikiF[max(wspolczynnikiF)].max()].index.values.astype(int)[0] 
-najlepsze2Cechy_2 = "c" + str(najlepsze2Cechy_2 + 1)
+        if wspolczynnikF > maksymalny:
+            maksymalny = wspolczynnikF
+            maksC1 = wiersze
+            maksC2 = kolumny
 
-print("najlepsze2Cechy Fisher to: ",najlepsze2Cechy_1, " i ",najlepsze2Cechy_2)
+print("najlepsze2Cechy Fisher to: ",maksC1, " i ",maksC2)
+
+#Liczenie najlepszych trzech cech
 
 licznik3 = math.sqrt(pow(srednia_Acer["c1"] - srednia_Quercus["c1"], 2) + 
                     pow(srednia_Acer["c2"] - srednia_Quercus["c2"], 2) +
@@ -148,4 +148,43 @@ dzielnik3B = 1/len(macierz3B)
 przedDet3B = dzielnik3B * result3B
 det3B = np.linalg.det(przedDet3B)
 
-wspolczynnikiF3 = (licznik / mianownik)
+mianownik3 = det3A + det3B
+
+wspolczynnikiF3 = (licznik3 / mianownik3)
+
+
+def liczenie3(zmienna1, zmienna2, klasa, srednia):
+    macierz = np.array(klasa.loc[:, [zmienna2, zmienna1]])
+    macierzSrednich = np.array(srednia.loc[[zmienna2, zmienna1]])
+    przedTrans = np.mat(macierz) - np.mat(macierzSrednich)
+    trans = przedTrans.T
+        
+    result = np.mat(trans) * np.mat(przedTrans)
+    dzielnik = 1/len(macierz)
+    przedDet = dzielnik * result
+    det = np.linalg.det(przedDet)
+        
+    return det
+    
+
+wspolczynnikiF3 = np.ones((64, 64, 64))
+
+for k in klasa_Acer.columns:
+    
+    for kolumny in klasa_Acer.columns:
+        wspolczynnikiF[kolumny] = kolumny
+        indeks = 0
+        for wiersze in klasa_Acer.columns:
+            licznik = math.sqrt(pow(srednia_Acer[kolumny] - srednia_Quercus[kolumny], 2) + pow(srednia_Acer[wiersze] - srednia_Quercus[wiersze], 2))
+            
+            detA = liczenie(wiersze, kolumny, klasa_Acer, srednia_Acer)
+            detB = liczenie(wiersze, kolumny, klasa_Quercus, srednia_Quercus)
+            
+            mianownik = detA + detB
+            
+            if mianownik != 0:
+                wspolczynnikiF.loc[indeks, kolumny] = (licznik / mianownik)
+            else:
+                wspolczynnikiF.loc[indeks, kolumny] = 0
+                
+            indeks = indeks + 1
