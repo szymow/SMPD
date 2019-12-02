@@ -84,39 +84,68 @@ najlepszaCecha = wspolczynniki.index(max(wspolczynniki))
 print("najlepszaCecha Fisher dla jednej cechy to: ",najlepszaCecha)
 
 
-wspolczynniki = pd.DataFrame()
+def liczenie(zmienna1, zmienna2, klasa, srednia):
+    macierz = np.array(klasa.loc[:, [zmienna2, zmienna1]])
+    macierzSrednich = np.array(srednia.loc[[zmienna2, zmienna1]])
+    przedTrans = np.mat(macierz) - np.mat(macierzSrednich)
+    trans = przedTrans.T
+        
+    result = np.mat(trans) * np.mat(przedTrans)
+    dzielnik = 1/len(macierz)
+    przedDet = dzielnik * result
+    det = np.linalg.det(przedDet)
+        
+    return det
+    
 
-for j in klasa_Acer.columns:
-    wspolczynniki[j] = j
-    index = 0
-    for i in klasa_Acer.columns:
-        licznik = math.sqrt(pow(srednia_Acer[j] - srednia_Quercus[j], 2) + pow(srednia_Acer[i] - srednia_Quercus[i], 2))
+wspolczynnikiF = pd.DataFrame()
+
+for kolumny in klasa_Acer.columns:
+    wspolczynnikiF[kolumny] = kolumny
+    indeks = 0
+    for wiersze in klasa_Acer.columns:
+        licznik = math.sqrt(pow(srednia_Acer[kolumny] - srednia_Quercus[kolumny], 2) + pow(srednia_Acer[wiersze] - srednia_Quercus[wiersze], 2))
         
-        macierzA = np.array(klasa_Acer.loc[:, [j, i]])
-        macierzSrednichA = np.array(srednia_Acer.loc[[j, i]])
-        przedTransA = np.mat(macierzA) - np.mat(macierzSrednichA)
-        transA = przedTransA.T
-        
-        resultA = np.mat(transA) * np.mat(przedTransA)
-        dzielnikA = 1/len(macierzA)
-        przedDetA = dzielnikA * resultA
-        detA = np.linalg.det(przedDetA)
-        
-        macierzB = np.array(klasa_Quercus.loc[:, [j, i]])
-        macierzSrednichB = np.array(srednia_Quercus.loc[[j, i]])
-        przedTransB = np.mat(macierzB) - np.mat(macierzSrednichB)
-        transB = przedTransB.T
-        
-        resultB = np.mat(transB) * np.mat(przedTransB)
-        dzielnikB = 1/len(macierzB)
-        przedDetB = dzielnikB * resultB
-        detB = np.linalg.det(przedDetB)
+        detA = liczenie(wiersze, kolumny, klasa_Acer, srednia_Acer)
+        detB = liczenie(wiersze, kolumny, klasa_Quercus, srednia_Quercus)
         
         mianownik = detA + detB
         
         if mianownik != 0:
-            wspolczynniki.loc[index, j] = (licznik / mianownik)
+            wspolczynnikiF.loc[indeks, kolumny] = (licznik / mianownik)
         else:
-            wspolczynniki.loc[index, j] = 0
+            wspolczynnikiF.loc[indeks, kolumny] = 0
             
-        index = index + 1
+        indeks = indeks + 1
+        
+najlepsze2Cechy_1 = max(wspolczynnikiF)
+najlepsze2Cechy_2 = wspolczynnikiF[wspolczynnikiF[max(wspolczynnikiF)]==wspolczynnikiF[max(wspolczynnikiF)].max()].index.values.astype(int)[0] 
+najlepsze2Cechy_2 = "c" + str(najlepsze2Cechy_2 + 1)
+
+print("najlepsze2Cechy Fisher to: ",najlepsze2Cechy_1, " i ",najlepsze2Cechy_2)
+
+licznik3 = math.sqrt(pow(srednia_Acer["c1"] - srednia_Quercus["c1"], 2) + 
+                    pow(srednia_Acer["c2"] - srednia_Quercus["c2"], 2) +
+                    pow(srednia_Acer["c3"] - srednia_Quercus["c3"], 2))
+
+macierz3A = np.array(klasa_Acer.loc[:, ["c1", "c2", "c3"]])
+macierzSrednich3A = np.array(srednia_Acer.loc[["c1", "c2", "c3"]])
+przedTrans3A = np.mat(macierz3A) - np.mat(macierzSrednich3A)
+trans3A = przedTrans3A.T
+        
+result3A = np.mat(trans3A) * np.mat(przedTrans3A)
+dzielnik3A = 1/len(macierz3A)
+przedDet3A = dzielnik3A * result3A
+det3A = np.linalg.det(przedDet3A)
+
+macierz3B = np.array(klasa_Quercus.loc[:, ["c1", "c2", "c3"]])
+macierzSrednich3B = np.array(srednia_Quercus.loc[["c1", "c2", "c3"]])
+przedTrans3B = np.mat(macierz3B) - np.mat(macierzSrednich3B)
+trans3B = przedTrans3B.T
+        
+result3B = np.mat(trans3B) * np.mat(przedTrans3B)
+dzielnik3B = 1/len(macierz3B)
+przedDet3B = dzielnik3B * result3B
+det3B = np.linalg.det(przedDet3B)
+
+wspolczynnikiF3 = (licznik / mianownik)
