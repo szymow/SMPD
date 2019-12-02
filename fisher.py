@@ -83,11 +83,13 @@ for i in range(int(len(srednia_Acer))):
 najlepszaCecha = wspolczynniki.index(max(wspolczynniki))
 print("najlepszaCecha Fisher dla jednej cechy to: ",najlepszaCecha)
 
+from time import perf_counter
+
 #Liczenie najlepszych dwoch cech
 
-def liczenie(zmienna1, zmienna2, klasa, srednia):
-    macierz = np.array(klasa.loc[:, [zmienna2, zmienna1]])
-    macierzSrednich = np.array(srednia.loc[[zmienna2, zmienna1]])
+def liczenie(lista, klasa, srednia):
+    macierz = np.array(klasa.loc[:, lista])
+    macierzSrednich = np.array(srednia.loc[lista])
     przedTrans = np.mat(macierz) - np.mat(macierzSrednich)
     trans = przedTrans.T
         
@@ -98,15 +100,23 @@ def liczenie(zmienna1, zmienna2, klasa, srednia):
         
     return det
     
-
 maksymalny = 1
+nazwy = klasa_Acer.columns
+lista_k = [1,1]
 
-for kolumny in klasa_Acer.columns:
-    for wiersze in klasa_Acer.columns:
-        licznik = math.sqrt(pow(srednia_Acer[kolumny] - srednia_Quercus[kolumny], 2) + pow(srednia_Acer[wiersze] - srednia_Quercus[wiersze], 2))
+t1_start = perf_counter() 
+for k1 in nazwy:
+    print (lista_k)
+    for k2 in nazwy:
+        if k1 != k2:
+            lista_k = [k1, k2]
+        else:
+            continue
         
-        detA = liczenie(wiersze, kolumny, klasa_Acer, srednia_Acer)
-        detB = liczenie(wiersze, kolumny, klasa_Quercus, srednia_Quercus)
+        licznik = math.sqrt(pow(srednia_Acer[k1] - srednia_Quercus[k1], 2) + pow(srednia_Acer[k2] - srednia_Quercus[k2], 2))
+        
+        detA = liczenie(lista_k, klasa_Acer, srednia_Acer)
+        detB = liczenie(lista_k, klasa_Quercus, srednia_Quercus)
         
         mianownik = detA + detB
         
@@ -117,74 +127,95 @@ for kolumny in klasa_Acer.columns:
         
         if wspolczynnikF > maksymalny:
             maksymalny = wspolczynnikF
-            maksC1 = wiersze
-            maksC2 = kolumny
+            maksC1 = lista_k[0]
+            maksC2 = lista_k[1]
 
+t1_stop = perf_counter()
 print("najlepsze2Cechy Fisher to: ",maksC1, " i ",maksC2)
 
+print("Elapsed time:", round(t1_stop - t1_start,2), "s")
+
 #Liczenie najlepszych trzech cech
-
-licznik3 = math.sqrt(pow(srednia_Acer["c1"] - srednia_Quercus["c1"], 2) + 
-                    pow(srednia_Acer["c2"] - srednia_Quercus["c2"], 2) +
-                    pow(srednia_Acer["c3"] - srednia_Quercus["c3"], 2))
-
-macierz3A = np.array(klasa_Acer.loc[:, ["c1", "c2", "c3"]])
-macierzSrednich3A = np.array(srednia_Acer.loc[["c1", "c2", "c3"]])
-przedTrans3A = np.mat(macierz3A) - np.mat(macierzSrednich3A)
-trans3A = przedTrans3A.T
-        
-result3A = np.mat(trans3A) * np.mat(przedTrans3A)
-dzielnik3A = 1/len(macierz3A)
-przedDet3A = dzielnik3A * result3A
-det3A = np.linalg.det(przedDet3A)
-
-macierz3B = np.array(klasa_Quercus.loc[:, ["c1", "c2", "c3"]])
-macierzSrednich3B = np.array(srednia_Quercus.loc[["c1", "c2", "c3"]])
-przedTrans3B = np.mat(macierz3B) - np.mat(macierzSrednich3B)
-trans3B = przedTrans3B.T
-        
-result3B = np.mat(trans3B) * np.mat(przedTrans3B)
-dzielnik3B = 1/len(macierz3B)
-przedDet3B = dzielnik3B * result3B
-det3B = np.linalg.det(przedDet3B)
-
-mianownik3 = det3A + det3B
-
-wspolczynnikiF3 = (licznik3 / mianownik3)
-
-
-def liczenie3(zmienna1, zmienna2, klasa, srednia):
-    macierz = np.array(klasa.loc[:, [zmienna2, zmienna1]])
-    macierzSrednich = np.array(srednia.loc[[zmienna2, zmienna1]])
-    przedTrans = np.mat(macierz) - np.mat(macierzSrednich)
-    trans = przedTrans.T
-        
-    result = np.mat(trans) * np.mat(przedTrans)
-    dzielnik = 1/len(macierz)
-    przedDet = dzielnik * result
-    det = np.linalg.det(przedDet)
-        
-    return det
-    
-
-wspolczynnikiF3 = np.ones((64, 64, 64))
-
-for k in klasa_Acer.columns:
-    
-    for kolumny in klasa_Acer.columns:
-        wspolczynnikiF[kolumny] = kolumny
-        indeks = 0
-        for wiersze in klasa_Acer.columns:
-            licznik = math.sqrt(pow(srednia_Acer[kolumny] - srednia_Quercus[kolumny], 2) + pow(srednia_Acer[wiersze] - srednia_Quercus[wiersze], 2))
+maksymalny = 1
+t2_start = perf_counter()
+for k1 in nazwy:
+    print (lista_k)
+    for k2 in nazwy:
+        for k3 in nazwy:           
+            if k1 != k2 and k1 != k3 and k2 != k3:
+                lista_k = [k1, k2, k3]
+            else:
+                continue
+            licznik3 = math.sqrt(pow(srednia_Acer[k1] - srednia_Quercus[k1], 2) + 
+                    pow(srednia_Acer[k2] - srednia_Quercus[k2], 2) +
+                    pow(srednia_Acer[k3] - srednia_Quercus[k3], 2))
             
-            detA = liczenie(wiersze, kolumny, klasa_Acer, srednia_Acer)
-            detB = liczenie(wiersze, kolumny, klasa_Quercus, srednia_Quercus)
+            detA = liczenie(lista_k, klasa_Acer, srednia_Acer)
+            detB = liczenie(lista_k, klasa_Quercus, srednia_Quercus)
             
-            mianownik = detA + detB
+            mianownik3 = detA + detB
             
             if mianownik != 0:
-                wspolczynnikiF.loc[indeks, kolumny] = (licznik / mianownik)
+                wspolczynnikF = (licznik3 / mianownik3)
             else:
-                wspolczynnikiF.loc[indeks, kolumny] = 0
-                
-            indeks = indeks + 1
+                wspolczynnikF = 0
+            
+            if wspolczynnikF > maksymalny:
+                maksymalny = wspolczynnikF
+                maksC1 = lista_k[0]
+                maksC2 = lista_k[1]
+                maksC3 = lista_k[2]
+
+t2_stop = perf_counter()
+print("najlepsze3Cechy Fisher to: ",maksC1, " i ",maksC2, " i ",maksC3)
+print("Elapsed time:", round(t2_stop - t2_start,2), "s")
+
+#Liczenie najlepszych czterech cech
+maksymalny = 1
+for k4 in nazwy:   
+    lista_k = [maksC1, maksC2, maksC3]
+    lista_k.append(k4)   
+    licznik3 = 0   
+    for k in lista_k:
+        licznik3 = licznik3 + pow(srednia_Acer[k] - srednia_Quercus[k], 2)   
+    licznik3 = math.sqrt(licznik3)               
+    detA = liczenie(lista_k, klasa_Acer, srednia_Acer)
+    detB = liczenie(lista_k, klasa_Quercus, srednia_Quercus)               
+    mianownik = detA + detB               
+    if mianownik != 0:
+        wspolczynnikF = (licznik / mianownik)
+    else:
+        wspolczynnikF = 0               
+    if wspolczynnikF > maksymalny:
+        maksymalny = wspolczynnikF
+        maksC4 = lista_k.pop()
+
+print("najlepsze4Cechy Fisher to: ",maksC1, " i ",maksC2, " i ",maksC3, " i ",maksC4)
+
+#Liczenie najlepszych pieciu cech
+maksymalny = 1
+for k5 in nazwy:   
+    lista_k = [maksC1, maksC2, maksC3, maksC4]
+    if k5 not in lista_k:
+        lista_k.append(k5)   
+    licznik3 = 0   
+    for k in lista_k:
+        licznik3 = licznik3 + pow(srednia_Acer[k] - srednia_Quercus[k], 2)   
+    licznik3 = math.sqrt(licznik3)               
+    detA = liczenie(lista_k, klasa_Acer, srednia_Acer)
+    detB = liczenie(lista_k, klasa_Quercus, srednia_Quercus)               
+    mianownik = detA + detB               
+    if mianownik != 0:
+        wspolczynnikF = (licznik / mianownik)
+    else:
+        wspolczynnikF = 0               
+    if wspolczynnikF > maksymalny:
+        maksymalny = wspolczynnikF
+        maksC5 = lista_k.pop()
+
+lista_k = [maksC1, maksC2, maksC3, maksC4, maksC5]
+wynik = ""
+for k in lista_k:
+    wynik = wynik + k + "; "
+
+print("najlepsze ",len(lista_k) ," cech Fisher to: ", wynik)
