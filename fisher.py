@@ -219,3 +219,90 @@ for k in lista_k:
     wynik = wynik + k + "; "
 
 print("najlepsze ",len(lista_k) ," cech Fisher to: ", wynik)
+
+#SFS 2 cechy
+k1_sfs = 'c' + str(najlepszaCecha)
+maksymalny = 1
+for k2_sfs in nazwy:   
+    lista_k = [k1_sfs]
+    if k2_sfs not in lista_k:
+        lista_k.append(k2_sfs)   
+    licznik = 0   
+    for k in lista_k:
+        licznik = licznik + pow(srednia_Acer[k] - srednia_Quercus[k], 2)   
+    licznik = math.sqrt(licznik)               
+    detA = liczenie(lista_k, klasa_Acer, srednia_Acer)
+    detB = liczenie(lista_k, klasa_Quercus, srednia_Quercus)               
+    mianownik = detA + detB               
+    if mianownik != 0:
+        wspolczynnikF = (licznik / mianownik)
+    else:
+        wspolczynnikF = 0               
+    if wspolczynnikF > maksymalny:
+        maksymalny = wspolczynnikF
+        maksK2 = lista_k.pop()
+
+lista_k = [k1_sfs, maksK2]        
+wynik = ""
+for k in lista_k:
+    wynik = wynik + k + "; "
+        
+print("najlepsze ",len(lista_k) ," cech Fisher SFS to: ", wynik)
+
+#SFS 3 cechy
+maksymalny = 1
+for k3_sfs in nazwy:   
+    lista_k = [k1_sfs, maksK2]
+    if k3_sfs not in lista_k:
+        lista_k.append(k3_sfs)   
+    licznik = 0   
+    for k in lista_k:
+        licznik = licznik + pow(srednia_Acer[k] - srednia_Quercus[k], 2)   
+    licznik = math.sqrt(licznik)               
+    detA = liczenie(lista_k, klasa_Acer, srednia_Acer)
+    detB = liczenie(lista_k, klasa_Quercus, srednia_Quercus)               
+    mianownik = detA + detB
+    if mianownik != 0:
+        wspolczynnikF = (licznik / mianownik)
+    else:
+        wspolczynnikF = 0               
+    if wspolczynnikF > maksymalny:
+        maksymalny = wspolczynnikF
+        maksK3 = lista_k.pop()
+
+lista_k = [k1_sfs, maksK2, maksK3]        
+wynik = ""
+for k in lista_k:
+    wynik = wynik + k + "; "
+        
+print("najlepsze ",len(lista_k) ," cech Fisher SFS to: ", wynik)
+
+
+#SFS 4 cechy
+maksmalny = 1
+for k4_sfs in nazwy:   
+    lista_k = [k1_sfs, maksK2, maksK3] 
+    if k4_sfs not in lista_k:
+        lista_k.append(k4_sfs)   
+    licznik = 0   
+    for k in lista_k:
+        licznik = licznik + pow(srednia_Acer[k] - srednia_Quercus[k], 2)   
+    licznik = math.sqrt(licznik)               
+    detA = liczenie(lista_k, klasa_Acer, srednia_Acer)
+    detB = liczenie(lista_k, klasa_Quercus, srednia_Quercus)               
+    mianownik = detA + detB
+    if mianownik != 0:
+        wspolczynnikF = (licznik / mianownik)
+    else:
+        wspolczynnikF = 0               
+    if wspolczynnikF > maksymalny:
+        maksymalny = wspolczynnikF
+        maksK4 = lista_k.pop()
+
+lista_k = [k1_sfs, maksK2, maksK3, maksK4]        
+wynik = ""
+for k in lista_k:
+    wynik = wynik + k + "; "
+        
+print("najlepsze ",len(lista_k) ," cech Fisher SFS to: ", wynik)
+
