@@ -74,13 +74,13 @@ B = np.array([[0, 7, 4],
               [8, 8, 7]])
 '''
 
-lc = 3 #Liczba Cech
+lc = 2 #Liczba Cech
 
 print(A)
 print(B)
 
-sredniaA = A.mean(axis=1) #Srednia wierszy
-sredniaB = B.mean(axis=1)
+sredniaA = A.mean(axis=0) #Srednia wierszy
+sredniaB = B.mean(axis=0)
 
 print(sredniaA)
 print(sredniaB)
@@ -110,13 +110,16 @@ for iterator in permutacja:
         odejmacierzA = np.concatenate([odejmacierzA, A[i-1] - sredniaA[i-1]])
         odejmacierzB = np.concatenate([odejmacierzB, B[i-1] - sredniaB[i-1]])
     licznik = math.sqrt(licznik)
+    print(odejmacierzA)
     odejmacierzA = odejmacierzA.reshape(lc,nA) #Sklejenie podmacierzy
     odejmacierzB = odejmacierzB.reshape(lc,nB)
     transA = odejmacierzA.T
     resultA = np.mat(transA) * np.mat(odejmacierzA)
     
     przedDetA = DZIELNIK_A * resultA
+    
     detA = np.linalg.det(przedDetA)
+    np.savetxt('test.txt', przedDetA)
 
     transB = odejmacierzB.T
     resultB = np.mat(transB) * np.mat(odejmacierzB)
@@ -125,17 +128,20 @@ for iterator in permutacja:
     detB = np.linalg.det(przedDetB)
     
     mianownik = detA + detB
+    wynik = licznik/mianownik
+    '''
     if mianownik != 0:
         wynik = licznik/mianownik
     else:
         wynik = 0
-        
+    ''' 
     print(wynik)
         
     if wynik > maks:
         maks = wynik
         maks_cechy = iterator
-        
+
+print("Wynik: ", maks)
 print("Najlepsze cechy to: ", maks_cechy)
 
 t1_stop = perf_counter()
