@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jan  9 20:43:13 2020
-
 @author: Szymon
 """
 
@@ -52,41 +51,31 @@ for i in range(int(len(dane))):
 klasa_Acer = klasa_Acer.drop(columns=["c0"])
 klasa_Quercus = klasa_Quercus.drop(columns=["c0"])
 
-A = np.array(klasa_Acer)
-B = np.array(klasa_Quercus)
+#Sprawdzenie czy nie ma wartosci NaN, jezeli sa zamiana na 0
+if klasa_Acer.isnull().sum().sum():
+    klasa_Acer = klasa_Acer.fillna(0)
+    
+if klasa_Quercus.isnull().sum().sum():
+    klasa_Quercus = klasa_Quercus.fillna(0)
+    
+A = klasa_Acer.T
+B = klasa_Quercus.T    
 
-#Transponowwanie danych z pliku
-A = A.T
-B = B.T
+A = np.array(A)
+B = np.array(B)
 
-#A = np.random.uniform(0,1, size=(64, 176))
-#B = np.random.uniform(0,1, size=(64, 608))
+lc = 4 #Zadana liczba najlepszych cech
 
-'''
-A = np.array([[4, 6, 1, 0],
-              [7, 0, 1, 8],
-              [8, 4, 7, 4],
-              [3, 5, 4, 6]])
-
-B = np.array([[0, 7, 4],
-              [6, 0, 2],
-              [8, 3, 8],
-              [8, 8, 7]])
-'''
-
-lc = 2 #Liczba Cech
-
+print("A")
 print(A)
+print("B")
 print(B)
 
-sredniaA = A.mean(axis=0) #Srednia wierszy
-sredniaB = B.mean(axis=0)
+sredniaA = A.mean(axis=1) #Srednia cech
+sredniaB = B.mean(axis=1)
 
-print(sredniaA)
-print(sredniaB)
-
-nX = np.size(A,0) #Liczba wierszy
-nA = np.size(A,1) #Liczba kolumn
+nX = np.size(A,0) #Liczba cech
+nA = np.size(A,1) #Liczba probek
 nB = np.size(B,1)
 
 DZIELNIK_A = 1/nA
@@ -110,31 +99,29 @@ for iterator in permutacja:
         odejmacierzA = np.concatenate([odejmacierzA, A[i-1] - sredniaA[i-1]])
         odejmacierzB = np.concatenate([odejmacierzB, B[i-1] - sredniaB[i-1]])
     licznik = math.sqrt(licznik)
-    print(odejmacierzA)
+
     odejmacierzA = odejmacierzA.reshape(lc,nA) #Sklejenie podmacierzy
     odejmacierzB = odejmacierzB.reshape(lc,nB)
     transA = odejmacierzA.T
-    resultA = np.mat(transA) * np.mat(odejmacierzA)
+    resultA =  np.mat(odejmacierzA) * np.mat(transA)
     
     przedDetA = DZIELNIK_A * resultA
     
     detA = np.linalg.det(przedDetA)
-    np.savetxt('test.txt', przedDetA)
 
     transB = odejmacierzB.T
-    resultB = np.mat(transB) * np.mat(odejmacierzB)
+    resultB =  np.mat(odejmacierzB) * np.mat(transB)
     
     przedDetB = DZIELNIK_B * resultB
     detB = np.linalg.det(przedDetB)
     
     mianownik = detA + detB
-    wynik = licznik/mianownik
-    '''
+
     if mianownik != 0:
         wynik = licznik/mianownik
     else:
         wynik = 0
-    ''' 
+
     print(wynik)
         
     if wynik > maks:
