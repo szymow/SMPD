@@ -22,7 +22,7 @@ etykieta.grid(column = 0, row = 0)
 def getCSV():
     global dane
     sciezkaDoPliku = filedialog.askopenfilename()
-    dane = pd.read_csv(sciezkaDoPliku, sep = ';')
+    dane = pd.read_csv(sciezkaDoPliku, sep = ',')
     print(dane)
 
 przyciskImportujCSV = tk.Button(text=" Importuj CSV ", 
@@ -33,46 +33,28 @@ okno.mainloop()
 #https://likegeeks.com/python-gui-examples-tkinter-tutorial/
 
 #Dzielenie na 2 klasy
-
-liczba_kolumn = len(dane.columns)
-klasy = ["c{}".format(i) for i in range(0, liczba_kolumn)]
-
-klasa_Acer = pd.DataFrame(columns = klasy)
-klasa_Quercus = pd.DataFrame(columns= klasy)
-
-for i in range(int(len(dane))):
-    klasa_probki = dane.iloc[i]["klasa"]
-    if klasa_probki == "Acer":
-        klasa_Acer.loc[i] = dane.loc[i]
-    if klasa_probki == "Quercus":
-        klasa_Quercus.loc[i] = dane.loc[i]
+klasa_Acer = dane[0:176]
+klasa_Quercus = dane[176:]
 
 #Pozbycie sie wartosci nieliczbowych
-klasa_Acer = klasa_Acer.drop(columns=["c0"])
-klasa_Quercus = klasa_Quercus.drop(columns=["c0"])
+klasa_Acer = klasa_Acer.drop(columns=["64"])
+klasa_Quercus = klasa_Quercus.drop(columns=["64"])
 
-#Sprawdzenie czy nie ma wartosci NaN, jezeli sa zamiana na 0
-if klasa_Acer.isnull().sum().sum():
-    klasa_Acer = klasa_Acer.fillna(0)
-    
-if klasa_Quercus.isnull().sum().sum():
-    klasa_Quercus = klasa_Quercus.fillna(0)
-    
+#Srednia cech
+srednia_Acer = klasa_Acer.mean(axis = 0)
+srednia_Quercus = klasa_Quercus.mean(axis = 0)
+
+sredniaA = np.array(srednia_Acer)
+sredniaB = np.array(srednia_Quercus)
+
+#Transponowanie
 A = klasa_Acer.T
 B = klasa_Quercus.T    
 
 A = np.array(A)
 B = np.array(B)
 
-lc = 4 #Zadana liczba najlepszych cech
-
-print("A")
-print(A)
-print("B")
-print(B)
-
-sredniaA = A.mean(axis=1) #Srednia cech
-sredniaB = B.mean(axis=1)
+lc = 3 #Zadana liczba najlepszych cech
 
 nX = np.size(A,0) #Liczba cech
 nA = np.size(A,1) #Liczba probek
@@ -83,34 +65,43 @@ DZIELNIK_B = 1/nB
 
 maks = 0
 
-permutacja = list(permutations(np.arange(nX)+1, lc))
+permutacja = list(permutations(np.arange(nX), lc))
 permutacja = np.array(permutacja)
 
 from time import perf_counter
 t1_start = perf_counter() 
 
 for iterator in permutacja:
-    print (iterator)
+    #Sledzenie postepu dla 3 najlepszych cech
+    if lc==3:
+        if iterator[0]==(iterator[1]-1)==(iterator[2]-2):
+            print (iterator[0],"/",nX)
     licznik = 0
-    odejmacierzA = np.array([])
-    odejmacierzB = np.array([])
-    for i in iterator:
-        licznik = licznik + (pow(sredniaA[i-1] - sredniaB[i-1],2))
-        odejmacierzA = np.concatenate([odejmacierzA, A[i-1] - sredniaA[i-1]])
-        odejmacierzB = np.concatenate([odejmacierzB, B[i-1] - sredniaB[i-1]])
-    licznik = math.sqrt(licznik)
+    macA = []
+    macB = []
 
-    odejmacierzA = odejmacierzA.reshape(lc,nA) #Sklejenie podmacierzy
-    odejmacierzB = odejmacierzB.reshape(lc,nB)
-    transA = odejmacierzA.T
-    resultA =  np.mat(odejmacierzA) * np.mat(transA)
+    for i in iterator:
+        licznik = licznik + (pow(sredniaA[i] - sredniaB[i],2))
+        for j in range(176):
+            macA.append(A[i][j] - sredniaA[i])
+        for j in range(608):
+            macB.append(B[i][j] - sredniaB[i])
+    licznik = math.sqrt(licznik)
+        
+    macA = np.array(macA)
+    macB = np.array(macB)
+        
+    macA = macA.reshape(lc,176)
+    macB = macB.reshape(lc,608)
+    transA = macA.T
+    resultA =  np.mat(macA) * np.mat(transA)
     
     przedDetA = DZIELNIK_A * resultA
     
     detA = np.linalg.det(przedDetA)
 
-    transB = odejmacierzB.T
-    resultB =  np.mat(odejmacierzB) * np.mat(transB)
+    transB = macB.T
+    resultB =  np.mat(macB) * np.mat(transB)
     
     przedDetB = DZIELNIK_B * resultB
     detB = np.linalg.det(przedDetB)
@@ -122,7 +113,7 @@ for iterator in permutacja:
     else:
         wynik = 0
 
-    print(wynik)
+#    print(wynik)
         
     if wynik > maks:
         maks = wynik
