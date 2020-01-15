@@ -39,7 +39,6 @@ okno.mainloop()
 klasa_Acer = dane[0:176]
 klasa_Quercus = dane[176:]
 
-
 #Pozbycie sie wartosci nieliczbowych
 klasa_Acer = klasa_Acer.drop(columns=["64"])
 klasa_Quercus = klasa_Quercus.drop(columns=["64"])
@@ -79,7 +78,7 @@ print("najlepszaCecha Fisher dla jednej cechy to: ",najlepszaCecha)
 
 from itertools import product
 
-liczbacech = 2 #Zadana liczba najlepszych cech
+liczbacech = 8 #Zadana liczba najlepszych cech
 
 #Transponowanie
 A = klasa_Acer.T
@@ -180,15 +179,24 @@ for lc in range(2,liczbacech+1):
             prod = product(a,a,a,a,a,b)
         if lc == 6:
             prod = product(a,a,a,a,a,a,b)
+        if lc == 7:
+            prod = product(a,a,a,a,a,a,a,b)
+        if lc == 8:
+            prod = product(a,a,a,a,a,a,a,a,b)
+        if lc == 9:
+            prod = product(a,a,a,a,a,a,a,a,a,b)
+        if lc == 10:
+            prod = product(a,a,a,a,a,a,a,a,a,a,b)
         
-        c = list(prod)
-        
-        e = []
-        for d in c:
-            if len(d) == len(set(d)):
-                e.append(d)
-                if 64 in d: break
-        prod = e
+        if lc < liczbacech:
+            c = list(prod)
+            
+            e = []
+            for d in c:
+                if len(d) == len(set(d)):
+                    e.append(d)
+                    if 63 in d: break
+            prod = e
 
 
 t1_stop = perf_counter()
