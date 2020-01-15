@@ -25,7 +25,7 @@ etykieta.grid(column = 0, row = 0)
 def getCSV():
     global dane
     sciezkaDoPliku = filedialog.askopenfilename()
-    dane = pd.read_csv(sciezkaDoPliku, sep = ';')
+    dane = pd.read_csv(sciezkaDoPliku, sep = ',')
     print(dane)
 
 przyciskImportujCSV = tk.Button(text=" Importuj CSV ", 
@@ -36,24 +36,15 @@ okno.mainloop()
 #https://likegeeks.com/python-gui-examples-tkinter-tutorial/
 
 #Dzielenie na 2 klasy
+klasa_Acer = dane[0:176]
+klasa_Quercus = dane[176:]
 
-liczba_kolumn = len(dane.columns)
-klasy = ["c{}".format(i) for i in range(0, liczba_kolumn)]
-
-klasa_Acer = pd.DataFrame(columns = klasy)
-klasa_Quercus = pd.DataFrame(columns= klasy)
-
-for i in range(int(len(dane))):
-    klasa_probki = dane.iloc[i]["klasa"]
-    if klasa_probki == "Acer":
-        klasa_Acer.loc[i] = dane.loc[i]
-    if klasa_probki == "Quercus":
-        klasa_Quercus.loc[i] = dane.loc[i]
 
 #Pozbycie sie wartosci nieliczbowych
-klasa_Acer = klasa_Acer.drop(columns=["c0"])
-klasa_Quercus = klasa_Quercus.drop(columns=["c0"])
+klasa_Acer = klasa_Acer.drop(columns=["64"])
+klasa_Quercus = klasa_Quercus.drop(columns=["64"])
 
+#Srednia cech
 srednia_Acer = klasa_Acer.mean(axis = 0)
 srednia_Quercus = klasa_Quercus.mean(axis = 0)
 
@@ -86,13 +77,16 @@ for i in range(int(len(srednia_Acer))):
 najlepszaCecha = wspolczynniki.index(max(wspolczynniki))
 print("najlepszaCecha Fisher dla jednej cechy to: ",najlepszaCecha)
 
-
 from itertools import product
 
-liczbacech = 6 #Zadana liczba najlepszych cech
+liczbacech = 2 #Zadana liczba najlepszych cech
 
-A = np.array(klasa_Acer)
-B = np.array(klasa_Quercus)
+#Transponowanie
+A = klasa_Acer.T
+B = klasa_Quercus.T
+
+A = np.array(A)
+B = np.array(B)
 
 sredniaA = np.array(srednia_Acer)
 sredniaB = np.array(srednia_Quercus)
@@ -105,7 +99,7 @@ DZIELNIK_A = 1/nA
 DZIELNIK_B = 1/nB
 
 a = range(najlepszaCecha,najlepszaCecha+1)
-b = range(1,64+1)
+b = range(64)
 prod = product(a,b) #Produkt kartezjanski
 
 from time import perf_counter
@@ -123,25 +117,33 @@ for lc in range(2,liczbacech+1):
             continue
         
         licznik = 0
-        odejmacierzA = np.array([])
-        odejmacierzB = np.array([])
+        
+        macA = []
+        macB = []
+
         for i in iterator:
-            licznik = licznik + (pow(sredniaA[i-1] - sredniaB[i-1],2))
-            odejmacierzA = np.concatenate([odejmacierzA, A[i-1] - sredniaA[i-1]])
-            odejmacierzB = np.concatenate([odejmacierzB, B[i-1] - sredniaB[i-1]])
-        licznik = math.sqrt(licznik)
-    
-        odejmacierzA = odejmacierzA.reshape(lc,nA) #Sklejenie podmacierzy
-        odejmacierzB = odejmacierzB.reshape(lc,nB)
-        transA = odejmacierzA.T
-        resultA =  np.mat(odejmacierzA) * np.mat(transA)
+            licznik = licznik + (pow(sredniaA[i] - sredniaB[i],2))
+            for j in range(176):
+                macA.append(A[i][j] - sredniaA[i])
+            for j in range(608):
+                macB.append(B[i][j] - sredniaB[i])
+            licznik = math.sqrt(licznik)
+        
+        macA = np.array(macA)
+        macB = np.array(macB)
+        
+        macA = macA.reshape(lc,176)
+        macB = macB.reshape(lc,608)
+        
+        transA = macA.T
+        resultA =  np.mat(macA) * np.mat(transA)
         
         przedDetA = DZIELNIK_A * resultA
         
         detA = np.linalg.det(przedDetA)
     
-        transB = odejmacierzB.T
-        resultB =  np.mat(odejmacierzB) * np.mat(transB)
+        transB = macB.T
+        resultB =  np.mat(macB) * np.mat(transB)
         
         przedDetB = DZIELNIK_B * resultB
         detB = np.linalg.det(przedDetB)
