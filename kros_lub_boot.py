@@ -327,7 +327,7 @@ def klasyfikacja_kNN():
 
 
 # Klasyfikacja NN
-def klasyfikacjaNN():
+def klasyfikacja_NN():
     
     lc = len(klasa_Acer) # Liczba cech
     t = int(len(test.columns))
@@ -390,15 +390,58 @@ def klasyfikacjaNN():
     print("Skutecznosc: ", len(Output)/t * 100, "%")
     
 
+def klasyfikacja_NM():
+    lc = len(klasa_Acer) # Liczba cech
+    t = int(len(test.columns))
+    
+    srednia_klas_A = klasa_Acer.mean(axis=1)
+    srednia_klas_Q = klasa_Quercus.mean(axis=1)
+    
+    odp_NM_a = []
+    odp_NM_q = []
+    
+    for k in range(t):
+        suma = 0
+        for i in range(lc):
+            suma = suma + pow(srednia_klas_A[i] - test[k][i], 2)
+        suma = math.sqrt(suma)
+        odp_NM_a.append(suma)
+        
+        suma = 0
+        for i in range(lc):
+            suma = suma + pow(srednia_klas_Q[i] - test[k][i], 2)
+        suma = math.sqrt(suma)
+        odp_NM_q.append(suma)
+        
+    odp_NN = []
+    for i in range(lc):
+        if odp_NM_a[i] < odp_NM_q[i]:
+            odp_NN.append('A')
+        else:
+            odp_NN.append('Q')
+            
+    # List initialisation
+    Input1 = test_odp
+    Input4 = odp_NN
+      
+    # Using list comprehension and zip  
+    Output4 = [Input4.index(y) for x, y in
+           zip(Input1, Input4) if y == x] 
+    
+
+    # Printing output
+    print("Klasyfikacja NM ")
+    print("Skutecznosc: ", len(Output4)/t * 100, "%")
+
 
 if klasyfi == 1:
-    klasyfikacjaNN()
+    klasyfikacja_NN()
 
 if klasyfi == 2:
     klasyfikacja_kNN()
     
 if klasyfi == 3:
-    pass
+    klasyfikacja_NM()
 
 if klasyfi == 4:
     pass
