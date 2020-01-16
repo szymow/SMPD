@@ -24,6 +24,7 @@ etykieta.grid(column = 0, row = 0)
 
 def getCSV():
     global dane
+    global sciezkaDoPliku
     sciezkaDoPliku = filedialog.askopenfilename()
     dane = pd.read_csv(sciezkaDoPliku, sep = ',')
     print(dane)
@@ -78,16 +79,40 @@ okno.mainloop()
 #https://likegeeks.com/python-gui-examples-tkinter-tutorial/
 
 #Dzielenie na 2 klasy
-klasa_Acer = dane[0:176]
-klasa_Quercus = dane[176:]
-
-#Pozbycie sie wartosci nieliczbowych
-klasa_Acer = klasa_Acer.drop(columns=["64"])
-klasa_Quercus = klasa_Quercus.drop(columns=["64"])
-
-#Srednia cech
-srednia_Acer = klasa_Acer.mean(axis = 0)
-srednia_Quercus = klasa_Quercus.mean(axis = 0)
+#Wersja przyspieszona dla Maple_Oak oraz wersja dluzsza dla pozostalych plikow (trening.csv)
+if "Maple_Oak" in sciezkaDoPliku:
+    klasa_Acer = dane[0:176]
+    klasa_Quercus = dane[176:]
+    
+    #Pozbycie sie wartosci nieliczbowych
+    klasa_Acer = klasa_Acer.drop(columns=["64"])
+    klasa_Quercus = klasa_Quercus.drop(columns=["64"])
+    
+else:
+    klasa_Acer = pd.DataFrame()
+    klasa_Quercus = pd.DataFrame()
+    d = len(dane)
+    for i in range(d):
+        if "Acer" in dane["64"][i]:
+            tren = dane.loc[i][1:]
+            tren = np.array(tren, dtype='float')
+            klasa_Acer.insert(0,i,tren)
+        if "Quercus" in dane["64"][i]:
+            tren = dane.loc[i][1:]
+            tren = np.array(tren, dtype='float')
+            klasa_Quercus.insert(0,i,tren)
+    klasa_Acer = klasa_Acer.T.reset_index(drop=True).T  
+    klasa_Quercus = klasa_Quercus.T.reset_index(drop=True).T
+    
+    
+if "Maple_Oak" in sciezkaDoPliku:
+    #Srednia cech
+    srednia_Acer = klasa_Acer.mean(axis = 0)
+    srednia_Quercus = klasa_Quercus.mean(axis = 0)
+else:
+    srednia_Acer = klasa_Acer.mean(axis = 1)
+    srednia_Quercus = klasa_Quercus.mean(axis = 1)
+            
 
 def odchylenie_std(klasa, srednia):
     odchylenie = []
@@ -101,10 +126,15 @@ def odchylenie_std(klasa, srednia):
         suma = math.sqrt(suma)
         odchylenie.append(suma)
     return odchylenie
-        
 
-odchylenie_std_Acer = odchylenie_std(klasa_Acer, srednia_Acer)
-odchylenie_std_Quercus = odchylenie_std(klasa_Quercus, srednia_Quercus)
+
+if "Maple_Oak" in sciezkaDoPliku:
+    odchylenie_std_Acer = odchylenie_std(klasa_Acer, srednia_Acer)
+    odchylenie_std_Quercus = odchylenie_std(klasa_Quercus, srednia_Quercus)
+else:
+    odchylenie_std_Acer = odchylenie_std(klasa_Acer.T, srednia_Acer)
+    odchylenie_std_Quercus = odchylenie_std(klasa_Quercus.T, srednia_Quercus)
+
 
 wspolczynniki = []
 for i in range(int(len(srednia_Acer))):
@@ -119,9 +149,13 @@ print("najlepszaCecha Fisher dla jednej cechy to: ",najlepszaCecha)
 
 from itertools import product, permutations
 
-#Transponowanie
-A = klasa_Acer.T
-B = klasa_Quercus.T
+if "Maple_Oak" in sciezkaDoPliku:
+    #Transponowanie
+    A = klasa_Acer.T
+    B = klasa_Quercus.T
+else:
+    A = klasa_Acer
+    B = klasa_Quercus
 
 A = np.array(A)
 B = np.array(B)
@@ -159,17 +193,17 @@ def Fisher():
     
         for i in iterator:
             licznik = licznik + (pow(sredniaA[i] - sredniaB[i],2))
-            for j in range(176):
+            for j in range(nA):
                 macA.append(A[i][j] - sredniaA[i])
-            for j in range(608):
+            for j in range(nB):
                 macB.append(B[i][j] - sredniaB[i])
         licznik = math.sqrt(licznik)
             
         macA = np.array(macA)
         macB = np.array(macB)
             
-        macA = macA.reshape(lcf,176)
-        macB = macB.reshape(lcf,608)
+        macA = macA.reshape(lcf,nA)
+        macB = macB.reshape(lcf,nB)
         transA = macA.T
         resultA =  np.mat(macA) * np.mat(transA)
         
@@ -202,6 +236,7 @@ def Fisher():
     t1_stop = perf_counter()
     print("Elapsed time:", round(t1_stop - t1_start,2), "s")
     print("Policzone metoda Fisher")
+    return maks_cechy
 
 def SFS():
     a = range(najlepszaCecha,najlepszaCecha+1)
@@ -229,17 +264,17 @@ def SFS():
     
             for i in iterator:
                 licznik = licznik + (pow(sredniaA[i] - sredniaB[i],2))
-                for j in range(176):
+                for j in range(nA):
                     macA.append(A[i][j] - sredniaA[i])
-                for j in range(608):
+                for j in range(nB):
                     macB.append(B[i][j] - sredniaB[i])
                 licznik = math.sqrt(licznik)
             
             macA = np.array(macA)
             macB = np.array(macB)
             
-            macA = macA.reshape(lc,176)
-            macB = macB.reshape(lc,608)
+            macA = macA.reshape(lc,nA)
+            macB = macB.reshape(lc,nB)
             
             transA = macA.T
             resultA =  np.mat(macA) * np.mat(transA)
@@ -309,11 +344,28 @@ def SFS():
     t1_stop = perf_counter()
     print("Elapsed time:", round(t1_stop - t1_start,2), "s")
     print("Policzone metoda SFS")
+    return maks_cechy
 
 
 if fisher_lub_sfs == 1:
-    Fisher()
+    maks_cech = Fisher()
 
 if fisher_lub_sfs == 2:
-    SFS()
+    maks_cech = SFS()
+
+
+#Ograniczamy zbior treningowy tylko do najlepszych cech
+
+print(maks_cech)
+trening_naj = dane.iloc[:, [0]]
+i = 0
+for x in maks_cech:
+    i = i + 1
+    tren = dane.iloc[ : , [x] ]
+    trening_naj.insert(i,x,tren)
+trening_naj.to_csv("trening_naj.csv", index=False)
+print("Wygenerowano plik: trening_naj.csv")
+print("Wroc kros_lub_boot aby dokonac Kroswalidacji.")
+    
+
 
