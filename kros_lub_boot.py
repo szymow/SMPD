@@ -181,9 +181,9 @@ test = test.reset_index(drop=True)
 test_odp = test["64"]
 test_odp = test_odp.reset_index(drop=True)
 for x in range(int(len(test_odp))):
-    if "Acer" in test_odp[x]:
+    if "Acer" or "otwarta" in test_odp[x]:
         test_odp[x] = 'A'
-    if "Quercus" in test_odp[x]:
+    if "Quercus" or "zamknieta" in test_odp[x]:
         test_odp[x] = 'Q'
 test_odp = list(test_odp)
     
@@ -213,11 +213,11 @@ tc = len(trening.columns)
 
 for i in range(tc):
     klasa_probki = trening[i][0]
-    if "Acer" in klasa_probki:
+    if "Acer" or "otwarta" in klasa_probki:
         tren = trening[i][1:]
         tren = np.array(tren, dtype='float')
         klasa_Acer.insert(0,i,tren)
-    if "Quercus" in klasa_probki:
+    if "Quercus" or "zamknieta" in klasa_probki:
         tren = trening[i][1:]
         tren = np.array(tren, dtype='float')
         klasa_Quercus.insert(0,i,tren)
