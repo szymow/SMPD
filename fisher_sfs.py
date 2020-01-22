@@ -81,8 +81,16 @@ okno.mainloop()
 #Dzielenie na 2 klasy
 #Wersja przyspieszona dla Maple_Oak oraz wersja dluzsza dla pozostalych plikow (trening.csv)
 if "Maple_Oak" in sciezkaDoPliku:
-    klasa_Acer = dane[0:176]
+    klasa_Acer = dane[:176]
     klasa_Quercus = dane[176:]
+    
+    #Pozbycie sie wartosci nieliczbowych
+    klasa_Acer = klasa_Acer.drop(columns=["64"])
+    klasa_Quercus = klasa_Quercus.drop(columns=["64"])
+    
+elif "rece" in sciezkaDoPliku:
+    klasa_Acer = dane[:12]
+    klasa_Quercus = dane[12:]
     
     #Pozbycie sie wartosci nieliczbowych
     klasa_Acer = klasa_Acer.drop(columns=["64"])
@@ -105,7 +113,7 @@ else:
     klasa_Quercus = klasa_Quercus.T.reset_index(drop=True).T
     
     
-if "Maple_Oak" in sciezkaDoPliku:
+if "Maple_Oak" or "rece" in sciezkaDoPliku:
     #Srednia cech
     srednia_Acer = klasa_Acer.mean(axis = 0)
     srednia_Quercus = klasa_Quercus.mean(axis = 0)
@@ -128,7 +136,7 @@ def odchylenie_std(klasa, srednia):
     return odchylenie
 
 
-if "Maple_Oak" in sciezkaDoPliku:
+if "Maple_Oak" or "rece" in sciezkaDoPliku:
     odchylenie_std_Acer = odchylenie_std(klasa_Acer, srednia_Acer)
     odchylenie_std_Quercus = odchylenie_std(klasa_Quercus, srednia_Quercus)
 else:
@@ -149,7 +157,7 @@ print("najlepszaCecha Fisher dla jednej cechy to: ",najlepszaCecha)
 
 from itertools import product, permutations
 
-if "Maple_Oak" in sciezkaDoPliku:
+if "Maple_Oak" or "rece" in sciezkaDoPliku:
     #Transponowanie
     A = klasa_Acer.T
     B = klasa_Quercus.T
@@ -357,15 +365,21 @@ if fisher_lub_sfs == 2:
 #Ograniczamy zbior treningowy tylko do najlepszych cech
 
 print(maks_cech)
-trening_naj = dane.iloc[:, [0]]
+najlepsze = dane.iloc[:, [0]]
 i = 0
 for x in maks_cech:
     i = i + 1
     tren = dane.iloc[ : , [x] ]
-    trening_naj.insert(i,x,tren)
-trening_naj.to_csv("trening_naj.csv", index=False)
-print("Wygenerowano plik: trening_naj.csv")
-print("Wroc kros_lub_boot aby dokonac Kroswalidacji.")
+    najlepsze.insert(i,x,tren)
+    
+if "Maple_Oak" in sciezkaDoPliku:
+    najlepsze.to_csv("Maple_Oak_najlepsze.csv", index=False)
+    print("Wygenerowano plik: Maple_Oak_najlepsze.csv")
+    print("Wroc kros_lub_boot aby dokonac Kroswalidacji.")
+else:
+    najlepsze.to_csv("najlepsze.csv", index=False)
+    print("Wygenerowano plik: najlepsze.csv")
+    print("Wroc kros_lub_boot aby dokonac Kroswalidacji.")
     
 
 
