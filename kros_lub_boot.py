@@ -179,60 +179,68 @@ B = np.array(B)
 #pcb = 20 # Procent cech Bootstrap
 #lpb = 3 # Liczba powtorzen Bootstrap
 
-dane = dane.sample(frac=1)
-z = int(len(dane)/lck)
-test = dane[:z]
-trening = dane[z:]
-
-test = test.reset_index(drop=True)
-
-test_odp = test["64"]
-test_odp = test_odp.reset_index(drop=True)
-for x in range(int(len(test_odp))):
-    if ("Acer" or "otwarta") in test_odp[x]:
-        test_odp[x] = 'A'
-    if ("Quercus" or "zamknieta") in test_odp[x]:
-        test_odp[x] = 'Q'
-test_odp = list(test_odp)
+def dzielenie_test_trening():
+    global dane
+    global test
+    global trening
+    global test_odp
+    global klasa_Acer
+    global klasa_Quercus
     
-
-test = test.drop(columns=["64"])
-
-test = test.T
-
-
-#Dzielenie na klasy treningu
-
-trening = trening.reset_index(drop=True)
-
-trening.to_csv("trening.csv", index=False)
-
-print("Wygenerowano plik: trening.csv")
-print("Dokonaj Fishera lub SFS aby wybrac najlepsze cechy.")
-print("Wroc tutaj aby przeprowadzic Kroswalidacje na pliku trening_naj.csv")
-
-trening = trening.T
-
-
-klasa_Acer = pd.DataFrame()
-klasa_Quercus = pd.DataFrame()
-
-tc = len(trening.columns)
-
-for i in range(tc):
-    klasa_probki = trening[i][0]
-    if ("Acer" or "otwarta") in klasa_probki:
-        tren = trening[i][1:]
-        tren = np.array(tren, dtype='float')
-        klasa_Acer.insert(0,i,tren)
-    if ("Quercus" or "zamknieta") in klasa_probki:
-        tren = trening[i][1:]
-        tren = np.array(tren, dtype='float')
-        klasa_Quercus.insert(0,i,tren)
-
-
-klasa_Acer = klasa_Acer.T.reset_index(drop=True).T  
-klasa_Quercus = klasa_Quercus.T.reset_index(drop=True).T      
+    dane = dane.sample(frac=1)
+    z = int(len(dane)/lck)
+    test = dane[:z]
+    trening = dane[z:]
+    
+    test = test.reset_index(drop=True)
+    
+    test_odp = test["64"]
+    test_odp = test_odp.reset_index(drop=True)
+    for x in range(int(len(test_odp))):
+        if ("Acer" or "otwarta") in test_odp[x]:
+            test_odp[x] = 'A'
+        if ("Quercus" or "zamknieta") in test_odp[x]:
+            test_odp[x] = 'Q'
+    test_odp = list(test_odp)
+        
+    
+    test = test.drop(columns=["64"])
+    
+    test = test.T
+    
+    
+    #Dzielenie na klasy treningu
+    
+    trening = trening.reset_index(drop=True)
+    
+    trening.to_csv("trening.csv", index=False)
+    
+    print("Wygenerowano plik: trening.csv")
+    print("Dokonaj Fishera lub SFS aby wybrac najlepsze cechy.")
+    print("Wroc tutaj aby przeprowadzic Kroswalidacje na pliku trening_naj.csv")
+    
+    trening = trening.T
+    
+    
+    klasa_Acer = pd.DataFrame()
+    klasa_Quercus = pd.DataFrame()
+    
+    tc = len(trening.columns)
+    
+    for i in range(tc):
+        klasa_probki = trening[i][0]
+        if ("Acer" or "otwarta") in klasa_probki:
+            tren = trening[i][1:]
+            tren = np.array(tren, dtype='float')
+            klasa_Acer.insert(0,i,tren)
+        if ("Quercus" or "zamknieta") in klasa_probki:
+            tren = trening[i][1:]
+            tren = np.array(tren, dtype='float')
+            klasa_Quercus.insert(0,i,tren)
+    
+    
+    klasa_Acer = klasa_Acer.T.reset_index(drop=True).T  
+    klasa_Quercus = klasa_Quercus.T.reset_index(drop=True).T      
 
 
 # Klasyfikacja kNN
@@ -490,13 +498,19 @@ def klasyfikacja_kNM():
 
 
 if klasyfi == 1:
-    klasyfikacja_NN()
+    for i in range(lpk):
+        dzielenie_test_trening()
+        klasyfikacja_NN()
 
 if klasyfi == 2:
-    klasyfikacja_kNN()
+    for i in range(lpk):
+        dzielenie_test_trening()
+        klasyfikacja_kNN()
     
 if klasyfi == 3:
-    klasyfikacja_NM()
+    for i in range(lpk):
+        dzielenie_test_trening()
+        klasyfikacja_NM()
 
 if klasyfi == 4:
     pass
