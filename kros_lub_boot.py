@@ -57,6 +57,7 @@ def potwierdz():
 def potwierdz2():
     global klasyfi
     global liczba_k
+    global podklasa
     klasyfi = v1.get()
     if klasyfi == 1:
         print("NN")
@@ -71,7 +72,9 @@ def potwierdz2():
         print("kNM")
         liczba_k = combo5.get()
         liczba_k = int(liczba_k)
+        podklasa = combo6.get()
         print("Liczba k: ", liczba_k)
+        print("Podklasa: ", podklasa)
     else:
         print("Wybierz NN / kNN / NM / kNM")
         
@@ -141,6 +144,11 @@ combo5['values']=(1,2,3,4,5,6,7,8,9,10)
 combo5.current(1)
 combo5.grid(column=1,row=7)
 
+combo6 = Combobox(okno)
+combo6['values']=('A','Q')
+combo6.current(0)
+combo6.grid(column=2,row=6)
+
 okno.mainloop()
 #https://likegeeks.com/python-gui-examples-tkinter-tutorial/
 
@@ -181,9 +189,9 @@ test = test.reset_index(drop=True)
 test_odp = test["64"]
 test_odp = test_odp.reset_index(drop=True)
 for x in range(int(len(test_odp))):
-    if "Acer" or "otwarta" in test_odp[x]:
+    if ("Acer" or "otwarta") in test_odp[x]:
         test_odp[x] = 'A'
-    if "Quercus" or "zamknieta" in test_odp[x]:
+    if ("Quercus" or "zamknieta") in test_odp[x]:
         test_odp[x] = 'Q'
 test_odp = list(test_odp)
     
@@ -213,11 +221,11 @@ tc = len(trening.columns)
 
 for i in range(tc):
     klasa_probki = trening[i][0]
-    if "Acer" or "otwarta" in klasa_probki:
+    if ("Acer" or "otwarta") in klasa_probki:
         tren = trening[i][1:]
         tren = np.array(tren, dtype='float')
         klasa_Acer.insert(0,i,tren)
-    if "Quercus" or "zamknieta" in klasa_probki:
+    if ("Quercus" or "zamknieta") in klasa_probki:
         tren = trening[i][1:]
         tren = np.array(tren, dtype='float')
         klasa_Quercus.insert(0,i,tren)
@@ -393,6 +401,53 @@ def klasyfikacja_NN():
 def klasyfikacja_NM():
     lc = len(klasa_Acer) # Liczba cech
     t = int(len(test.columns))
+    
+    srednia_klas_A = klasa_Acer.mean(axis=1)
+    srednia_klas_Q = klasa_Quercus.mean(axis=1)
+    
+    odp_NM_a = []
+    odp_NM_q = []
+    
+    for k in range(t):
+        suma = 0
+        for i in range(lc):
+            suma = suma + pow(srednia_klas_A[i] - test[k][i], 2)
+        suma = math.sqrt(suma)
+        odp_NM_a.append(suma)
+        
+        suma = 0
+        for i in range(lc):
+            suma = suma + pow(srednia_klas_Q[i] - test[k][i], 2)
+        suma = math.sqrt(suma)
+        odp_NM_q.append(suma)
+        
+    odp_NN = []
+    for i in range(lc):
+        if odp_NM_a[i] < odp_NM_q[i]:
+            odp_NN.append('A')
+        else:
+            odp_NN.append('Q')
+            
+    # List initialisation
+    Input1 = test_odp
+    Input4 = odp_NN
+      
+    # Using list comprehension and zip  
+    Output4 = [Input4.index(y) for x, y in
+           zip(Input1, Input4) if y == x] 
+    
+
+    # Printing output
+    print("Klasyfikacja NM ")
+    print("Skutecznosc: ", len(Output4)/t * 100, "%")
+    
+
+def klasyfikacja_kNM():
+    lc = len(klasa_Acer) # Liczba cech
+    t = int(len(test.columns))
+    
+    if 'A' in podklasa:
+        pass
     
     srednia_klas_A = klasa_Acer.mean(axis=1)
     srednia_klas_Q = klasa_Quercus.mean(axis=1)
