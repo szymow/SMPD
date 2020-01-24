@@ -74,7 +74,7 @@ def potwierdz2():
         liczbaPodklas = combo5.get()
         liczbaPodklas = int(liczbaPodklas)
         liczba_k = liczbaPodklas
-        podklasa = combo6.get()
+ #       podklasa = combo6.get()
         print("Liczba k: ", liczbaPodklas)
         print("Podklasa: ", podklasa)
     else:
@@ -197,19 +197,14 @@ def dzielenie_test_trening():
         test = dane[:z]
         trening = dane[z:]
     
-    if okrazenie == 2:
-        test = dane[z:2*z]
-        pieces = [dane[:z], dane[2*z:]]
+    if okrazenie > 1 and okrazenie < lck:
+        test = dane[(okrazenie-1)*z:okrazenie*z]
+        pieces = [dane[:(okrazenie-1)*z], dane[okrazenie*z:]]
         trening = pd.concat(pieces)
     
-    if okrazenie == 3:
-        test = dane[2*z:3*z]
-        pieces = [dane[:2*z], dane[3*z:]]
-        trening = pd.concat(pieces)
-    
-    if okrazenie == 4:
-        test = dane[3*z:]
-        trening = dane[:3*z]
+    if okrazenie == lck:
+        test = dane[(lck-1)*z:]
+        trening = dane[:(lck-1)*z]
     
     test = test.reset_index(drop=True)
     
@@ -508,7 +503,9 @@ if klasyfi == 1:
             okrazenie = okrazenie + 1
             dzielenie_test_trening()
             klasyfikacja_NN()
+    liczba_skutecznosci = len(skutecznosc_calkowita)
     skutecznosc_calkowita = mean(skutecznosc_calkowita)
+    print("Liczba skutecznosci: ", liczba_skutecznosci)
     print("Skutecznosc calkowita: ", skutecznosc_calkowita, "%")
 
 if klasyfi == 2:
@@ -520,7 +517,9 @@ if klasyfi == 2:
             okrazenie = okrazenie + 1
             dzielenie_test_trening()
             klasyfikacja_kNN()
+    liczba_skutecznosci = len(skutecznosc_calkowita)
     skutecznosc_calkowita = mean(skutecznosc_calkowita)
+    print("Liczba skutecznosci: ", liczba_skutecznosci)
     print("Skutecznosc calkowita: ", skutecznosc_calkowita, "%")
     
 if klasyfi == 3:
@@ -532,5 +531,7 @@ if klasyfi == 3:
             okrazenie = okrazenie + 1
             dzielenie_test_trening()
             klasyfikacja_NM()
+    liczba_skutecznosci = len(skutecznosc_calkowita)
     skutecznosc_calkowita = mean(skutecznosc_calkowita)
+    print("Liczba skutecznosci: ", liczba_skutecznosci)
     print("Skutecznosc calkowita: ", skutecznosc_calkowita, "%")
