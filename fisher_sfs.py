@@ -345,7 +345,10 @@ def SFS():
                 for d in c:
                     if len(d) == len(set(d)):
                         e.append(d)
-                        if 63 in d: break
+                        if "Maple_Oak" in sciezkaDoPliku:
+                            if 63 in d: break
+                        if "rece" in sciezkaDoPliku:
+                            if 62 in d: break
                 prod = e
     
     
