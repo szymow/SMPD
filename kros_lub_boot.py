@@ -58,6 +58,7 @@ def potwierdz2():
     global klasyfi
     global liczba_k
     global podklasa
+    global liczbaPodklas
     klasyfi = v1.get()
     if klasyfi == 1:
         print("NN")
@@ -70,10 +71,11 @@ def potwierdz2():
         print("NM")
     elif klasyfi == 4:
         print("kNM")
-        liczba_k = combo5.get()
-        liczba_k = int(liczba_k)
+        liczbaPodklas = combo5.get()
+        liczbaPodklas = int(liczbaPodklas)
+        liczba_k = liczbaPodklas
         podklasa = combo6.get()
-        print("Liczba k: ", liczba_k)
+        print("Liczba k: ", liczbaPodklas)
         print("Podklasa: ", podklasa)
     else:
         print("Wybierz NN / kNN / NM / kNM")
@@ -95,10 +97,10 @@ potwierdz2.grid(column=2, row=8)
 v = tk.IntVar()
 
 r1 = tk.Radiobutton(okno, text="Kroswalidacja", font=("Arial",16), variable=v, value=1)
-r2 = tk.Radiobutton(okno, text="Bootstrap", font=("Arial",16), variable=v, value=2)
+#r2 = tk.Radiobutton(okno, text="Bootstrap", font=("Arial",16), variable=v, value=2)
 
 r1.grid(column = 0, row = 1)
-r2.grid(column = 0, row = 2)
+#r2.grid(column = 0, row = 2)
 
 combo1 = Combobox(okno)
 combo1['values']=(3,4,5)
@@ -113,12 +115,12 @@ combo2.grid(column=2,row=1)
 combo3 = Combobox(okno)
 combo3['values']=(10,20,30,40,50)
 combo3.current(1)
-combo3.grid(column=1,row=2)
+#combo3.grid(column=1,row=2)
 
 combo4 = Combobox(okno)
 combo4['values']=(1,2,3,4,5)
 combo4.current(1)
-combo4.grid(column=2,row=2)
+#combo4.grid(column=2,row=2)
 
 etykieta2=Label(okno, text=" Klasyfikacja ", font=("Arial",16))
 etykieta2.grid(column = 0, row = 4)
@@ -186,6 +188,7 @@ def dzielenie_test_trening():
     global test_odp
     global klasa_Acer
     global klasa_Quercus
+    global z
     
     dane = dane.sample(frac=1)
     z = int(len(dane)/lck)
@@ -197,9 +200,13 @@ def dzielenie_test_trening():
     test_odp = test["64"]
     test_odp = test_odp.reset_index(drop=True)
     for x in range(int(len(test_odp))):
-        if ("Acer" or "otwarta") in test_odp[x]:
+        if "Acer" in test_odp[x]:
             test_odp[x] = 'A'
-        if ("Quercus" or "zamknieta") in test_odp[x]:
+        if "Quercus" in test_odp[x]:
+            test_odp[x] = 'Q'
+        if "otwarta" in test_odp[x]:
+            test_odp[x] = 'A'
+        if "zamknieta" in test_odp[x]:
             test_odp[x] = 'Q'
     test_odp = list(test_odp)
         
@@ -229,11 +236,19 @@ def dzielenie_test_trening():
     
     for i in range(tc):
         klasa_probki = trening[i][0]
-        if ("Acer" or "otwarta") in klasa_probki:
+        if "Acer" in klasa_probki:
             tren = trening[i][1:]
             tren = np.array(tren, dtype='float')
             klasa_Acer.insert(0,i,tren)
-        if ("Quercus" or "zamknieta") in klasa_probki:
+        if "Quercus" in klasa_probki:
+            tren = trening[i][1:]
+            tren = np.array(tren, dtype='float')
+            klasa_Quercus.insert(0,i,tren)
+        if "otwarta" in klasa_probki:
+            tren = trening[i][1:]
+            tren = np.array(tren, dtype='float')
+            klasa_Acer.insert(0,i,tren)
+        if "zamknieta" in klasa_probki:
             tren = trening[i][1:]
             tren = np.array(tren, dtype='float')
             klasa_Quercus.insert(0,i,tren)
@@ -451,50 +466,131 @@ def klasyfikacja_NM():
     
 
 def klasyfikacja_kNM():
-    lc = len(klasa_Acer) # Liczba cech
-    t = int(len(test.columns))
+    global probki_klasy_A_kNM
+    probki_klasy_A_kNM = pd.DataFrame(columns=["c1", "c2", "c3"])
     
-    if 'A' in podklasa:
-        pass
+    for i in range(int(len(dane))):
+        klasa_probki = dane.iloc[i]["64"]
+        if klasa_probki is "A":
+            probki_klasy_A_kNM.loc[i] = dane.iloc[i]
     
-    srednia_klas_A = klasa_Acer.mean(axis=1)
-    srednia_klas_Q = klasa_Quercus.mean(axis=1)
+    probki_klasy_A_kNM = probki_klasy_A_kNM.reset_index(drop=True)        
+    probki_klasy_A_kNM["podklasa"] = ""
     
-    odp_NM_a = []
-    odp_NM_q = []
+    #liczbaPodklas = 3
+    index = liczbaPodklas + 1
     
-    for k in range(t):
-        suma = 0
-        for i in range(lc):
-            suma = suma + pow(srednia_klas_A[i] - test[k][i], 2)
-        suma = math.sqrt(suma)
-        odp_NM_a.append(suma)
+    podklasy = ["A{}".format(i) for i in range(1, index)]
+    
+    for i in range(liczbaPodklas):      
+        probki_klasy_A_kNM.loc[i]["podklasa"] = podklasy[i]
+    
+    for i in range(int((len(probki_klasy_A_kNM)) - liczbaPodklas)):
+        odleglosc_od_podklasy = []
         
-        suma = 0
-        for i in range(lc):
-            suma = suma + pow(srednia_klas_Q[i] - test[k][i], 2)
-        suma = math.sqrt(suma)
-        odp_NM_q.append(suma)
+        for j in range(liczbaPodklas):
+            DsAjx = math.sqrt(math.pow(probki_klasy_A_kNM.iloc[j]["c1"] - 
+                                       probki_klasy_A_kNM.iloc[liczbaPodklas + i]["c1"],2) 
+                + math.pow(probki_klasy_A_kNM.iloc[j]["c2"] - probki_klasy_A_kNM.iloc[liczbaPodklas + i]["c2"],2) 
+                + math.pow(probki_klasy_A_kNM.iloc[j]["c3"] - probki_klasy_A_kNM.iloc[liczbaPodklas + i]["c3"],2))
+            odleglosc_od_podklasy.append(DsAjx)
+    
+        index_min_odleglosc = odleglosc_od_podklasy.index(min(odleglosc_od_podklasy))
+        podklasa = probki_klasy_A_kNM.iloc[index_min_odleglosc]["podklasa"]
         
-    odp_NN = []
-    for i in range(lc):
-        if odp_NM_a[i] < odp_NM_q[i]:
-            odp_NN.append('A')
-        else:
-            odp_NN.append('Q')
+        probki_klasy_A_kNM.loc[liczbaPodklas + i]["podklasa"] = podklasa
+    
+    def przypisywanie_do_podklas(probki,srednie):
+        for i in range(int(len(probki))):
+            odleglosc = []      #odleglosc_od_podklasy
+        
+            for j in range(liczbaPodklas):
+                DsAjx = math.sqrt(math.pow(srednie.iloc[j]["c1"] - probki.iloc[i]["c1"],2) 
+                    + math.pow(srednie.iloc[j]["c2"] - probki.iloc[i]["c2"],2) 
+                    + math.pow(srednie.iloc[j]["c3"] - probki.iloc[i]["c3"],2))
+                odleglosc_od_podklasy.append(DsAjx)
+    
+            indeks = odleglosc.index(min(odleglosc))   #index_min_odleglosc
+            podklasa = srednie.iloc[indeks]["podklasa"]
+        
+            probki.loc[i]["podklasa"] = podklasa
+        return probki
+    
+    import itertools
+    
+    def dzielenie_na_podklasy(probki):
+        
+        podklasa_A123 = []
+        
+        for wartosc_podklasy in podklasy:
+            temp_df = probki_klasy_A_kNM.loc[probki_klasy_A_kNM.podklasa == wartosc_podklasy, "c1":"c3"]
+            temp = temp_df.values.tolist()
+            # Zmiana multidimentional list na one dimentional
+            temp_list = list(itertools.chain(*temp))
+            podklasa_A123.append(temp_list)
+            podklasa_A123.append(wartosc_podklasy)
+        
+        return podklasa_A123
+    
+    def obliczenie_wartosci_srednich(podzielone):
+    
+        srednie = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"]) #wartosci_srednie_kNM
+        indeks = 0
+        
+        for element in podzielone:
+        
+            if type(element) is list:
+                probki = []     #probki_podklasy_kNM_c
+                srednia = []    #srednia_podklasy_kNM
             
-    # List initialisation
-    Input1 = test_odp
-    Input4 = odp_NN
-      
-    # Using list comprehension and zip  
-    Output4 = [Input4.index(y) for x, y in
-           zip(Input1, Input4) if y == x] 
+                for i in range(LiczbaCech):
+                    #pobieramy kolejne wartosci z listy co Liczbę Cech
+                    for j in range(int(len(element)/LiczbaCech)):
+                        probki.append(element[i + LiczbaCech * j])
+                    if(len(probki) is not 0):
+                        srednia.append(Srednia(probki))
+                    else:
+                        srednia.append(0)
+                    probki = []
+        
+            if type(element) is str:
+                srednia.append(element)    
+                srednie.loc[indeks] = srednia
+                indeks = indeks + 1
+                
+        return srednie
     
-
-    # Printing output
-    print("Klasyfikacja NM ")
-    print("Skutecznosc: ", len(Output4)/t * 100, "%")
+    def kolejny_krok_obliczen(probki, srednie):
+    
+        kolejny = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"]) #kolejny_df_kNM
+    
+        for i in range(int(len(probki))):
+            odleglosc = [] #odleglosc_od_podklasy
+        
+            for j in range(liczbaPodklas):
+                DsAjx = math.sqrt(math.pow(srednie.iloc[j]["c1"] - probki.iloc[i]["c1"],2) + 
+                                  math.pow(srednie.iloc[j]["c2"] - probki.iloc[i]["c2"],2) + 
+                                  math.pow(srednie.iloc[j]["c3"] - probki.iloc[i]["c3"],2))
+                odleglosc.append(DsAjx)
+    
+            indeks = odleglosc.index(min(odleglosc)) #index_min_odleglosc
+            podklasa = srednie.iloc[indeks]["podklasa"]
+    
+            kolejny.loc[i] = [probki.iloc[i]["c1"], probki.iloc[i]["c2"], probki.iloc[i]["c3"], podklasa]
+            
+        return kolejny
+        
+    def porownanie_dopasowania(poprzedni,kolejny):
+        return sum(poprzedni["podklasa"] == kolejny["podklasa"]) == len(kolejny["podklasa"])
+    
+    def oblicz_kNM(poprzedni):
+        podzielone_probki = dzielenie_na_podklasy(poprzedni)
+        print(podzielone_probki)
+        wartosci_srednie = obliczenie_wartosci_srednich(podzielone_probki)
+        print(wartosci_srednie)
+        nastepny = kolejny_krok_obliczen(poprzedni, wartosci_srednie)
+        print(nastepny)
+        return nastepny
 
 
 if klasyfi == 1:
@@ -513,4 +609,6 @@ if klasyfi == 3:
         klasyfikacja_NM()
 
 if klasyfi == 4:
-    pass
+    for i in range(lpk):
+        dzielenie_test_trening()
+        klasyfikacja_kNN()
