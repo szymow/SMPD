@@ -78,7 +78,7 @@ def potwierdz2():
         print("Liczba k: ", liczbaPodklas)
         print("Podklasa: ", podklasa)
     else:
-        print("Wybierz NN / kNN / NM / kNM")
+        print("Wybierz NN / kNN / NM ")
         
 
 przyciskImportujCSV = tk.Button(text=" Importuj CSV ", 
@@ -129,16 +129,14 @@ v1 = tk.IntVar()
 
 r3 = tk.Radiobutton(okno, text="NN", font=("Arial",16), variable=v1, value=1)
 r4 = tk.Radiobutton(okno, text="kNN", font=("Arial",16), variable=v1, value=2)
-r5 = tk.Radiobutton(okno, text="NM", font=("Arial",16), variable=v1, value=3)
-r6 = tk.Radiobutton(okno, text="kNM", font=("Arial",16), variable=v1, value=4)
+#r5 = tk.Radiobutton(okno, text="NM", font=("Arial",16), variable=v1, value=3)
 
 r3.grid(column = 0, row = 5)
 r4.grid(column = 1, row = 5)
-r5.grid(column = 0, row = 6)
-r6.grid(column = 1, row = 6)
+#r5.grid(column = 0, row = 6)
 
 
-etykieta3=Label(okno, text=" Wybierz k [kNN/kNM]: ", font=("Arial",12))
+etykieta3=Label(okno, text=" Wybierz k [kNN]: ", font=("Arial",12))
 etykieta3.grid(column = 0, row = 7)
 
 combo5 = Combobox(okno)
@@ -146,10 +144,6 @@ combo5['values']=(1,2,3,4,5,6,7,8,9,10)
 combo5.current(1)
 combo5.grid(column=1,row=7)
 
-combo6 = Combobox(okno)
-combo6['values']=('A','Q')
-combo6.current(0)
-combo6.grid(column=2,row=6)
 
 okno.mainloop()
 #https://likegeeks.com/python-gui-examples-tkinter-tutorial/
@@ -189,11 +183,33 @@ def dzielenie_test_trening():
     global klasa_Acer
     global klasa_Quercus
     global z
+    global proba_0
+    global okrazenie
     
-    dane = dane.sample(frac=1)
+    if proba_0:
+        dane = dane.sample(frac=1)
+        dane = dane.reset_index(drop=True)
+        proba_0 = False
+    
     z = int(len(dane)/lck)
-    test = dane[:z]
-    trening = dane[z:]
+    
+    if okrazenie == 1:
+        test = dane[:z]
+        trening = dane[z:]
+    
+    if okrazenie == 2:
+        test = dane[z:2*z]
+        pieces = [dane[:z], dane[2*z:]]
+        trening = pd.concat(pieces)
+    
+    if okrazenie == 3:
+        test = dane[2*z:3*z]
+        pieces = [dane[:2*z], dane[3*z:]]
+        trening = pd.concat(pieces)
+    
+    if okrazenie == 4:
+        test = dane[3*z:]
+        trening = dane[:3*z]
     
     test = test.reset_index(drop=True)
     
@@ -260,6 +276,7 @@ def dzielenie_test_trening():
 
 # Klasyfikacja kNN
 def klasyfikacja_kNN():
+    global skutecznosc_calkowita
     lc = len(klasa_Acer) # Liczba cech
     t = int(len(test.columns))
     a = int(len(klasa_Acer.columns))
@@ -351,14 +368,20 @@ def klasyfikacja_kNN():
     Output3 = [Input1.index(y) for x, y in
                zip(Input3, Input1) if y == x]
     
+    skutecznosc_pojedyncza = len(Output3)/t * 100
+    
     # Printing output
     print("Klasyfikacja kNN ")
     print("Liczba k: ", liczba_k)
-    print("Skutecznosc: ", len(Output3)/t * 100, "%")
+    print("Skutecznosc: ", skutecznosc_pojedyncza, "%")
+    
+    skutecznosc_calkowita.append(skutecznosc_pojedyncza)
 
 
 # Klasyfikacja NN
 def klasyfikacja_NN():
+    
+    global skutecznosc_calkowita
     
     lc = len(klasa_Acer) # Liczba cech
     t = int(len(test.columns))
@@ -415,13 +438,19 @@ def klasyfikacja_NN():
     Output = [Input2.index(y) for x, y in
            zip(Input1, Input2) if y == x] 
     
+    skutecznosc_pojedyncza = len(Output)/t * 100
 
     # Printing output
     print("Klasyfikacja NN ")
-    print("Skutecznosc: ", len(Output)/t * 100, "%")
+    print("Skutecznosc: ", skutecznosc_pojedyncza, "%")
+    
+    skutecznosc_calkowita.append(skutecznosc_pojedyncza)
     
 
 def klasyfikacja_NM():
+    
+    global skutecznosc_calkowita
+    
     lc = len(klasa_Acer) # Liczba cech
     t = int(len(test.columns))
     
@@ -430,6 +459,7 @@ def klasyfikacja_NM():
     
     odp_NM_a = []
     odp_NM_q = []
+    
     
     for k in range(t):
         suma = 0
@@ -459,156 +489,48 @@ def klasyfikacja_NM():
     Output4 = [Input4.index(y) for x, y in
            zip(Input1, Input4) if y == x] 
     
+    skutecznosc_pojedyncza = len(Output4)/t * 100
 
     # Printing output
     print("Klasyfikacja NM ")
-    print("Skutecznosc: ", len(Output4)/t * 100, "%")
+    print("Skutecznosc: ", skutecznosc_pojedyncza, "%")
     
+    skutecznosc_calkowita.append(skutecznosc_pojedyncza)
 
-def klasyfikacja_kNM():
-    global probki_klasy_A_kNM
-    probki_klasy_A_kNM = pd.DataFrame(columns=["c1", "c2", "c3"])
-    
-    for i in range(int(len(dane))):
-        klasa_probki = dane.iloc[i]["64"]
-        if klasa_probki is "A":
-            probki_klasy_A_kNM.loc[i] = dane.iloc[i]
-    
-    probki_klasy_A_kNM = probki_klasy_A_kNM.reset_index(drop=True)        
-    probki_klasy_A_kNM["podklasa"] = ""
-    
-    #liczbaPodklas = 3
-    index = liczbaPodklas + 1
-    
-    podklasy = ["A{}".format(i) for i in range(1, index)]
-    
-    for i in range(liczbaPodklas):      
-        probki_klasy_A_kNM.loc[i]["podklasa"] = podklasy[i]
-    
-    for i in range(int((len(probki_klasy_A_kNM)) - liczbaPodklas)):
-        odleglosc_od_podklasy = []
-        
-        for j in range(liczbaPodklas):
-            DsAjx = math.sqrt(math.pow(probki_klasy_A_kNM.iloc[j]["c1"] - 
-                                       probki_klasy_A_kNM.iloc[liczbaPodklas + i]["c1"],2) 
-                + math.pow(probki_klasy_A_kNM.iloc[j]["c2"] - probki_klasy_A_kNM.iloc[liczbaPodklas + i]["c2"],2) 
-                + math.pow(probki_klasy_A_kNM.iloc[j]["c3"] - probki_klasy_A_kNM.iloc[liczbaPodklas + i]["c3"],2))
-            odleglosc_od_podklasy.append(DsAjx)
-    
-        index_min_odleglosc = odleglosc_od_podklasy.index(min(odleglosc_od_podklasy))
-        podklasa = probki_klasy_A_kNM.iloc[index_min_odleglosc]["podklasa"]
-        
-        probki_klasy_A_kNM.loc[liczbaPodklas + i]["podklasa"] = podklasa
-    
-    def przypisywanie_do_podklas(probki,srednie):
-        for i in range(int(len(probki))):
-            odleglosc = []      #odleglosc_od_podklasy
-        
-            for j in range(liczbaPodklas):
-                DsAjx = math.sqrt(math.pow(srednie.iloc[j]["c1"] - probki.iloc[i]["c1"],2) 
-                    + math.pow(srednie.iloc[j]["c2"] - probki.iloc[i]["c2"],2) 
-                    + math.pow(srednie.iloc[j]["c3"] - probki.iloc[i]["c3"],2))
-                odleglosc_od_podklasy.append(DsAjx)
-    
-            indeks = odleglosc.index(min(odleglosc))   #index_min_odleglosc
-            podklasa = srednie.iloc[indeks]["podklasa"]
-        
-            probki.loc[i]["podklasa"] = podklasa
-        return probki
-    
-    import itertools
-    
-    def dzielenie_na_podklasy(probki):
-        
-        podklasa_A123 = []
-        
-        for wartosc_podklasy in podklasy:
-            temp_df = probki_klasy_A_kNM.loc[probki_klasy_A_kNM.podklasa == wartosc_podklasy, "c1":"c3"]
-            temp = temp_df.values.tolist()
-            # Zmiana multidimentional list na one dimentional
-            temp_list = list(itertools.chain(*temp))
-            podklasa_A123.append(temp_list)
-            podklasa_A123.append(wartosc_podklasy)
-        
-        return podklasa_A123
-    
-    def obliczenie_wartosci_srednich(podzielone):
-    
-        srednie = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"]) #wartosci_srednie_kNM
-        indeks = 0
-        
-        for element in podzielone:
-        
-            if type(element) is list:
-                probki = []     #probki_podklasy_kNM_c
-                srednia = []    #srednia_podklasy_kNM
-            
-                for i in range(LiczbaCech):
-                    #pobieramy kolejne wartosci z listy co Liczbę Cech
-                    for j in range(int(len(element)/LiczbaCech)):
-                        probki.append(element[i + LiczbaCech * j])
-                    if(len(probki) is not 0):
-                        srednia.append(Srednia(probki))
-                    else:
-                        srednia.append(0)
-                    probki = []
-        
-            if type(element) is str:
-                srednia.append(element)    
-                srednie.loc[indeks] = srednia
-                indeks = indeks + 1
-                
-        return srednie
-    
-    def kolejny_krok_obliczen(probki, srednie):
-    
-        kolejny = pd.DataFrame(columns=["c1", "c2", "c3", "podklasa"]) #kolejny_df_kNM
-    
-        for i in range(int(len(probki))):
-            odleglosc = [] #odleglosc_od_podklasy
-        
-            for j in range(liczbaPodklas):
-                DsAjx = math.sqrt(math.pow(srednie.iloc[j]["c1"] - probki.iloc[i]["c1"],2) + 
-                                  math.pow(srednie.iloc[j]["c2"] - probki.iloc[i]["c2"],2) + 
-                                  math.pow(srednie.iloc[j]["c3"] - probki.iloc[i]["c3"],2))
-                odleglosc.append(DsAjx)
-    
-            indeks = odleglosc.index(min(odleglosc)) #index_min_odleglosc
-            podklasa = srednie.iloc[indeks]["podklasa"]
-    
-            kolejny.loc[i] = [probki.iloc[i]["c1"], probki.iloc[i]["c2"], probki.iloc[i]["c3"], podklasa]
-            
-        return kolejny
-        
-    def porownanie_dopasowania(poprzedni,kolejny):
-        return sum(poprzedni["podklasa"] == kolejny["podklasa"]) == len(kolejny["podklasa"])
-    
-    def oblicz_kNM(poprzedni):
-        podzielone_probki = dzielenie_na_podklasy(poprzedni)
-        print(podzielone_probki)
-        wartosci_srednie = obliczenie_wartosci_srednich(podzielone_probki)
-        print(wartosci_srednie)
-        nastepny = kolejny_krok_obliczen(poprzedni, wartosci_srednie)
-        print(nastepny)
-        return nastepny
-
+from statistics import mean    
 
 if klasyfi == 1:
+    skutecznosc_calkowita = []
     for i in range(lpk):
-        dzielenie_test_trening()
-        klasyfikacja_NN()
+        proba_0 = True
+        okrazenie = 0
+        for j in range(lck):
+            okrazenie = okrazenie + 1
+            dzielenie_test_trening()
+            klasyfikacja_NN()
+    skutecznosc_calkowita = mean(skutecznosc_calkowita)
+    print("Skutecznosc calkowita: ", skutecznosc_calkowita, "%")
 
 if klasyfi == 2:
+    skutecznosc_calkowita = []
     for i in range(lpk):
-        dzielenie_test_trening()
-        klasyfikacja_kNN()
+        proba_0 = True
+        okrazenie = 0
+        for j in range(lck):
+            okrazenie = okrazenie + 1
+            dzielenie_test_trening()
+            klasyfikacja_kNN()
+    skutecznosc_calkowita = mean(skutecznosc_calkowita)
+    print("Skutecznosc calkowita: ", skutecznosc_calkowita, "%")
     
 if klasyfi == 3:
+    skutecznosc_calkowita = []
     for i in range(lpk):
-        dzielenie_test_trening()
-        klasyfikacja_NM()
-
-if klasyfi == 4:
-    for i in range(lpk):
-        dzielenie_test_trening()
-        klasyfikacja_kNN()
+        proba_0 = True
+        okrazenie = 0
+        for j in range(lck):
+            okrazenie = okrazenie + 1
+            dzielenie_test_trening()
+            klasyfikacja_NM()
+    skutecznosc_calkowita = mean(skutecznosc_calkowita)
+    print("Skutecznosc calkowita: ", skutecznosc_calkowita, "%")
